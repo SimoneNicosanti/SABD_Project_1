@@ -1,0 +1,3 @@
+FROM matnar/hadoop
+EXPOSE 54310
+COPY ./Dataset.csv /

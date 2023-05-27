@@ -1,0 +1,46 @@
+networks:
+  hadoop_network:
+    driver: bridge
+
+services:
+  master :
+    build:
+      context: ./
+      dockerfile: dockerfile.hdfs_master
+
+    #image: hdfs-master
+    ports:
+      - "9870:9870"
+      - "54310:54310"
+    networks:
+      - hadoop_network
+    tty: true    
+    
+    hostname: master
+  
+
+  worker_1 :
+    image: matnar/hadoop
+    ports:
+      - "9864:9864"
+    networks:
+      - hadoop_network
+    tty: true
+
+
+  worker_2:
+    image: matnar/hadoop
+    ports:
+      - "9863:9864"
+    networks:
+      - hadoop_network
+    tty: true
+
+  worker_3:
+    image: matnar/hadoop
+    ports:
+      - "9862:9864"
+    networks:
+      - hadoop_network
+    tty: true
+
