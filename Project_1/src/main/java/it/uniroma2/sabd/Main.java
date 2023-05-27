@@ -1,15 +1,14 @@
 package it.uniroma2.sabd;
 
-import it.uniroma2.sabd.engineering.SparkSingleton;
-import org.apache.spark.SparkContext;
-import org.apache.spark.sql.SparkSession;
+import it.uniroma2.sabd.controller.Controller;
+
+import java.io.IOException;
 //import org.apache.spark.sql.SparkSession;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        SparkContext sparkContext = SparkSingleton.getInstance().getSparkContext() ;
+        Controller.control();
 
-        SparkSession sparkSession = SparkSingleton.getInstance().getSparkSession() ;
     }
 }
