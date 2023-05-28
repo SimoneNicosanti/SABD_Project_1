@@ -1,0 +1,15 @@
+FROM apache/spark
+
+RUN apt-get update
+
+RUN apt-get install openjdk-8-jdk -y
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+RUN apt-get install python3 -y
+RUN apt install python3-pip -y
+RUN pip install pyspark
+RUN pip install jproperties
+
+# COPY /src/. /src/
+EXPOSE 4040
+CMD [ "/usr/bin/bash" ]
