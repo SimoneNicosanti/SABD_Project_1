@@ -14,7 +14,12 @@ def loadFromHdfs(fileName : str) -> DataFrame :
     return dataFrame
 
 
-def loadToHdfs(fileName) :
+def loadToHdfs(fileName : str, dataframe : DataFrame) :
+    baseHdfsUrl : str = loadHdfsUrl()
+    fileUrl = baseHdfsUrl + "/Results/" + fileName
+
+    dataframe.write.csv(path = fileUrl, header = True, mode = "overwrite")
+
     return 
 
 

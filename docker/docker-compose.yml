@@ -1,46 +1,67 @@
 networks:
-  hadoop_network:
+  my_network:
     driver: bridge
+    name: my_network
+
 
 services:
-  master :
-    build:
-      context: ./
-      dockerfile: dockerfile.hdfs_master
 
-    #image: hdfs-master
+  ## HDFS
+  master :
+    image: matnar/hadoop
     ports:
       - "9870:9870"
       - "54310:54310"
     networks:
-      - hadoop_network
-    tty: true    
-    
-    hostname: master
+      - my_network
+    tty: true
+    volumes:
+    - ../dataset:/dataset
   
-
-  worker_1 :
+  slave1 :
     image: matnar/hadoop
     ports:
       - "9864:9864"
     networks:
-      - hadoop_network
+      - my_network
     tty: true
 
-
-  worker_2:
+  slave2:
     image: matnar/hadoop
     ports:
       - "9863:9864"
     networks:
-      - hadoop_network
+      - my_network
     tty: true
 
-  worker_3:
+  slave3:
     image: matnar/hadoop
     ports:
       - "9862:9864"
     networks:
-      - hadoop_network
+      - my_network
     tty: true
 
+  ## Spark
+  spark-master:
+    image: bitnami/spark
+    environment:
+      - SPARK_MODE=master
+    networks:
+      - my_network
+    hostname: spark-master
+    ports:
+      - 8080:8080
+    tty: true
+
+  spark-worker:
+    image: bitnami/spark
+    networks:
+      - my_network
+    environment:
+      - SPARK_MODE=worker
+    tty: true
+    depends_on:
+      - spark-master
+    deploy:
+      replicas: 2

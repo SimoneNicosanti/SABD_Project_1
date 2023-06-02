@@ -17,7 +17,10 @@ def setUpDataFrame(dataframe : DataFrame) -> DataFrame :
     modifiedDataframe = modifiedDataframe.where(modifiedDataframe.TradingTime != "00:00:00.000")
     # Removing duplicate rows
     modifiedDataframe = modifiedDataframe.distinct()
-    # Sorting by data and time
+
+    modifiedDataframe = modifiedDataframe.withColumn("TradingTimeHour", substring("TradingTime", 1, 2))
+
+    # Sorting by date and time
     modifiedDataframe = modifiedDataframe.sort("TradingDate", "TradingTime")
 
     
