@@ -52,7 +52,7 @@ services:
       - my_network
     hostname: spark-master
     ports:
-      - 8080:8080
+      - '8080:8080' # http://localhost:8080 web ui spark
     tty: true
 
   spark-worker:
@@ -61,9 +61,13 @@ services:
       - my_network
     environment:
       - SPARK_MODE=worker
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
     tty: true
     depends_on:
       - spark-master
+    deploy:
+      replicas: 1
 
   ## Redis
   redis :

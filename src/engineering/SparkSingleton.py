@@ -25,6 +25,8 @@ class SparkSingleton(object) :
             appName = configs.get("spark.appName")
             masterPort = configs.get("spark.port")
 
+            sparkConf = SparkConf()
+
             sparkMasterUrl = "spark://" + masterName.data + ":" + masterPort.data
             
             cls.__sparkContext = SparkContext(master = sparkMasterUrl , appName = appName.data)

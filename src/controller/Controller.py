@@ -29,9 +29,9 @@ def controller() :
 
     #dataFrame.show()
 
-    dataFrame.persist()
+    dataFrame = dataFrame.persist()
     rdd = dataFrame.rdd.map(tuple)
-    rdd.persist()
+    rdd = rdd.persist()
 
     sparkController(rdd)
     sparkSqlController(dataFrame)
@@ -39,8 +39,8 @@ def controller() :
 
 def sparkController(rdd : RDD) :
     #print(rdd.collect()[0])
-    #Query_1.query(rdd)
-    Query_2.query(rdd)
+    Query_1.query(rdd)
+    #Query_2.query(rdd)
     return
 
 

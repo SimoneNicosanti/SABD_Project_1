@@ -25,6 +25,8 @@ def query(rdd : RDD) -> tuple([list, float]) :
         lambda x : (x[0], (x[1][0], x[1][1] / x[1][3], x[1][2], x[1][3]))
     )
 
+    ## TODO Valutare uso di StatCounter o stat sull'rdd per rendere il DAG migliore
+
     print("Collecting result of First Query")
     start = time.time()
     resultList = result.collect()
