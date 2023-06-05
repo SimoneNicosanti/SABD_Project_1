@@ -17,12 +17,10 @@ def main() :
     
     dataset.sort_values("Trading date")
 
-    otherDataset = pd.read_csv(
-        filepath_or_buffer = "../docker/Dataset.csv",
-        index_col = False,
-        low_memory = False)
-    
-    print(otherDataset)
+    dataset = dataset[
+        dataset["ID"].str.endswith(".ETR")
+    ]
+    print(dataset[dataset["ID"].str.endswith(".ETR")].count())
 
 
 

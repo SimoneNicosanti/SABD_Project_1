@@ -31,6 +31,8 @@ def query(dataFrame : DataFrame) :
             col("Table.ID"), col("Table.TradingDate"), col("Table.Last"), col("Times.TradingTimeHour"), col("Table.TradingTime")
         )
     
+    firstTradeDataFrame.show(n = 50)
+    
     firstTradeDataFrame = firstTradeDataFrame.groupBy(
         "ID", "TradingDate", "TradingTimeHour"
     ).agg(

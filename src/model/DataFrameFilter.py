@@ -10,11 +10,11 @@ def setUpDataFrame(dataframe : DataFrame) -> DataFrame :
     # Null Date removal
     modifiedDataframe = modifiedDataframe.where(modifiedDataframe.TradingDate.isNotNull())
     # Formatting Time Field
-    modifiedDataframe = modifiedDataframe.withColumn("TradingTime", date_format("TradingTime", "HH:mm:ss.SSS"))
+    modifiedDataframe = modifiedDataframe.withColumn("TradingTime", date_format("TradingTime", "HH:mm:ss.SSSS"))
     # Formatting Date Field
     modifiedDataframe = modifiedDataframe.withColumn(colName = "TradingDate", col = to_date("TradingDate", "dd-MM-yyyy"))
     # Removing rows with not valid time
-    modifiedDataframe = modifiedDataframe.where(modifiedDataframe.TradingTime != "00:00:00.000")
+    modifiedDataframe = modifiedDataframe.where(modifiedDataframe.TradingTime != "00:00:00.0000")
     # Removing duplicate rows
     modifiedDataframe = modifiedDataframe.distinct()
 

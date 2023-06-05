@@ -42,6 +42,7 @@ services:
       - my_network
     tty: true
 
+
   ## Spark
   spark-master:
     image: bitnami/spark
@@ -63,5 +64,10 @@ services:
     tty: true
     depends_on:
       - spark-master
-    deploy:
-      replicas: 2
+
+  ## Redis
+  redis :
+    image: redis
+    networks:
+      - my_network
+    tty : true

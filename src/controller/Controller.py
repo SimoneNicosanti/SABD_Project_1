@@ -1,17 +1,24 @@
 from dao import HDFSDao
-from dao import FileSystemDAO
+from dao import FileSystemDao
 from model import DataFrameFilter
+
+from queries import Query_1, Query_2
+from sql_queries import SqlQuery_2
+
 from pyspark.sql import *
 from pyspark import *
 
-import queries.Query_1
-from sql_queries import SqlQuery_1
+
+
+## from functools import partial
+# To use custom functions
 
 
 def dropColumnsFromDataframe(dataFrame : DataFrame) -> DataFrame:
     return dataFrame.select("ID", "SecType", "Last", "TradingDate", "TradingTime")
 
 def controller() :
+    
     dataFrame : DataFrame = HDFSDao.loadFromHdfs("Dataset.csv")
     dataFrame = dataFrame.withColumnRenamed("Trading date", "TradingDate")
     dataFrame = dataFrame.withColumnRenamed("Trading time", "TradingTime")
@@ -20,10 +27,9 @@ def controller() :
 
     dataFrame = DataFrameFilter.setUpDataFrame(dataFrame)
 
-    dataFrame.show()
+    #dataFrame.show()
 
     dataFrame.persist()
-
     rdd = dataFrame.rdd.map(tuple)
     rdd.persist()
 
@@ -32,11 +38,12 @@ def controller() :
 
 
 def sparkController(rdd : RDD) :
-    print(rdd.collect()[0])
-    queries.Query_1.query(rdd)
+    #print(rdd.collect()[0])
+    #Query_1.query(rdd)
+    Query_2.query(rdd)
     return
 
 
 def sparkSqlController(dataFrame : DataFrame) :
-    SqlQuery_1.query(dataFrame)
+    #SqlQuery_2.query(dataFrame)
     return

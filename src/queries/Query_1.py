@@ -1,8 +1,7 @@
 from pyspark import *
 import time
 
-
-def query(rdd : RDD) -> tuple([RDD, float]) :
+def query(rdd : RDD) -> tuple([list, float]) :
 
     result = rdd.filter(
         lambda x : x[1] == "E" and x[0].endswith(".FR")
@@ -31,7 +30,4 @@ def query(rdd : RDD) -> tuple([RDD, float]) :
     resultList = result.collect()
     end = time.time()
 
-    print(resultList[0], end - start)
-
-
-    return (result, end - start)
+    return (resultList, end - start)
