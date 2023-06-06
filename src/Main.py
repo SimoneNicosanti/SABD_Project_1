@@ -8,6 +8,8 @@ def main() :
     setUpEnvironment()
     Controller.controller()
 
+    input("Press Enter to Exit >>>")
+
 
 def setUpEnvironment() :
 
