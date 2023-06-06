@@ -46,6 +46,8 @@ def query(rdd : RDD) -> tuple([list, float]) :
         lambda x : (x[0], (x[1][0], sqrt(x[1][1] - x[1][0] ** 2), x[1][2]))
     )
 
+    ## TODO Classifica delle Azioni
+
     print("Computing Result for Query 2")
     startTime = time.time()
     resultList = resultRdd.collect()

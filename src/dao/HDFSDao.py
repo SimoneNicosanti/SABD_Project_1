@@ -1,6 +1,7 @@
 import jproperties as jprop
 from engineering import SparkSingleton
 from pyspark.sql import *
+import os
 
 
 def loadFromHdfs(fileName : str) -> DataFrame :
@@ -14,11 +15,18 @@ def loadFromHdfs(fileName : str) -> DataFrame :
     return dataFrame
 
 
-def loadToHdfs(fileName : str, dataframe : DataFrame) :
-    baseHdfsUrl : str = loadHdfsUrl()
-    fileUrl = baseHdfsUrl + "/Results/" + fileName
+def writeDataFrameAsCsv(dataFrame : DataFrame, fileName : str, parentPath : str) :
+    
+    filePath = os.path.join(parentPath, fileName)
 
-    dataframe.write.csv(path = fileUrl, header = True, mode = "overwrite")
+    hdfsUrl = loadHdfsUrl()
+
+    dataFrame = dataFrame.alias("Query_1")
+    dataFrame.write.csv(
+        path = hdfsUrl + parentPath + "/" + fileName,
+        mode = "overwrite",
+        header = True
+    )
 
     return 
 

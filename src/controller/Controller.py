@@ -1,9 +1,10 @@
 from dao import HDFSDao
-from dao import FileSystemDao
 from model import DataFrameFilter
+from model import ResultConverter
+from dao import SparkResultWriter
 
-from queries import Query_1, Query_2
-from sql_queries import SqlQuery_2
+from spark import Query_1, Query_2
+from spark_sql import SqlQuery_2
 
 from pyspark.sql import *
 from pyspark import *
@@ -39,7 +40,15 @@ def controller() :
 
 def sparkController(rdd : RDD) :
     #print(rdd.collect()[0])
-    Query_1.query(rdd)
+    (resultList, executionTime) = Query_1.query(rdd)
+    SparkResultWriter.writeRdd(
+        resultList = resultList, 
+        header = ["Date", "Hour", "ID", "Min", "Mean", "Max", "Count"], 
+        fileName = "Query_1", 
+        parentDirectory = "/Results/spark",
+        sortList = ["Date", "Hour", "ID"])
+
+
     #Query_2.query(rdd)
     return
 

@@ -1,13 +1,16 @@
+import csv
+import os
 from pyspark.sql import *
 
 
-def writeDataFrame(dataFrame : DataFrame, fileName : str) :
-    
-    dataFrame.write.csv("/Results/" + fileName, header = True, mode = "overwrite")
-    
+def writeDataFrameAsCsv(dataFrame : DataFrame, fileName : str, parentPath : str) -> None :
+
+    header = dataFrame.schema.names
+    resultList = dataFrame.rdd.collect()
+
+    with open(os.path.join(parentPath, fileName + ".csv"), "+x") as outputFile :
+        writer = csv.writer(outputFile)
+        writer.writerow(header)
+        writer.writerows(resultList)
+
     return
-
-
-
-def getFilePath(fileName : str) :
-    return '/Results/' + fileName
