@@ -3,12 +3,12 @@ import time
 from pyspark.statcounter import StatCounter
 
 def query(rdd : RDD) -> tuple([list, float]) :
-    ## @param rdd : RDD of (ID, SecType, Last, TradingDate, TradingTime, TradingHour)
+    ## @param rdd : RDD of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
 
-    result = rdd.filter(
-        lambda x : x[1] == "E" and str(x[0]).endswith(".FR")
-    ).map( ## ((ID, TradingDate, TradingHour), Last)
-        lambda x : ( (x[3], x[5], x[0]), x[2])
+    resultRDD = rdd.filter(
+        lambda x : x[3] == "E" and str(x[2]).endswith(".FR")
+    ).map( ## ((TradingDate, TradingHour, ID), Last)
+        lambda x : ( (x[0], x[5], x[2]), x[4])
     ).aggregateByKey( ## ((ID, TradingDate, TradingHour), StatsOf(count, mean, stddev, max, min))
         zeroValue = StatCounter(),
         seqFunc = StatCounter.merge,
@@ -53,7 +53,7 @@ def query(rdd : RDD) -> tuple([list, float]) :
     
     print("Collecting result of First Query")
     start = time.time()
-    resultList = result.collect()
+    resultList = resultRDD.collect()
     end = time.time()
 
     print(resultList[0])

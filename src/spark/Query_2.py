@@ -6,10 +6,10 @@ import time
 
 
 def query(rdd : RDD) -> tuple([list, float]) :
-    ## @param rdd : RDD of (ID, SecType, Last, TradingDate, TradingTime, TradingHour)
+    ## @param rdd : RDD of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
 
     resultRdd : RDD = rdd.map( ## ((TradingDate, ID, TradingHour) ; (TradingTime, Last))
-        lambda x : ( (x[3], x[0], x[5]) , (x[4], x[2]) ) 
+        lambda x : ( (x[0], x[2], x[5]) , (x[1], x[4]) ) 
     ).aggregateByKey( ## ((TradingDate, ID, TradingHour), (minTime, minPrice, maxTime, maxPrice))
         zeroValue = ("AA:AA:AA.AAAA", 0, "00:00:00.0000", 0),
         seqFunc = lambda accum, elem : (
@@ -48,7 +48,7 @@ def query(rdd : RDD) -> tuple([list, float]) :
 
     ## TODO Classifica delle Azioni
 
-    print("Computing Result for Query 2")
+    print("Collecting result of Second Query")
     startTime = time.time()
     resultList = resultRdd.collect()
     print(resultList[0])
@@ -60,7 +60,6 @@ def query(rdd : RDD) -> tuple([list, float]) :
 
     
     
-
 def getFirstAndLastTimeInfo(a : tuple, b : tuple) -> tuple :
     firstTime = min(a[0], b[0])
     lastTime = max(a[0], b[0])

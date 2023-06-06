@@ -1,6 +1,5 @@
 from dao import HDFSDao
-from model import DataFrameFilter
-from model import ResultConverter
+from controller import Preprocessor
 from dao import SparkResultWriter
 
 from spark import Query_1, Query_2
@@ -15,41 +14,46 @@ from pyspark import *
 # To use custom functions
 
 
-def dropColumnsFromDataframe(dataFrame : DataFrame) -> DataFrame:
-    return dataFrame.select("ID", "SecType", "Last", "TradingDate", "TradingTime")
-
 def controller() :
     
     dataFrame : DataFrame = HDFSDao.loadFromHdfs("Dataset.csv")
-    dataFrame = dataFrame.withColumnRenamed("Trading date", "TradingDate")
-    dataFrame = dataFrame.withColumnRenamed("Trading time", "TradingTime")
     
-    dataFrame = dropColumnsFromDataframe(dataFrame)
 
-    dataFrame = DataFrameFilter.setUpDataFrame(dataFrame)
-
-    #dataFrame.show()
+    dataFrame = Preprocessor.prepareForProcessing(dataFrame)
 
     dataFrame = dataFrame.persist()
     rdd = dataFrame.rdd.map(tuple)
     rdd = rdd.persist()
 
+    print(dataFrame.schema.names)
+
+    dataFrame.count()
+    rdd.count()
+
     sparkController(rdd)
-    sparkSqlController(dataFrame)
+    #sparkSqlController(dataFrame)
 
 
 def sparkController(rdd : RDD) :
     #print(rdd.collect()[0])
-    (resultList, executionTime) = Query_1.query(rdd)
+    (resultList_1, executionTime_1) = Query_1.query(rdd)
     SparkResultWriter.writeRdd(
-        resultList = resultList, 
+        resultList = resultList_1, 
         header = ["Date", "Hour", "ID", "Min", "Mean", "Max", "Count"], 
         fileName = "Query_1", 
         parentDirectory = "/Results/spark",
         sortList = ["Date", "Hour", "ID"])
 
 
-    #Query_2.query(rdd)
+    (resultList_2, executionTime_2) = Query_2.query(rdd)
+    SparkResultWriter.writeRdd(
+        resultList_2,
+        ["Date", "ID", "Mean", "StdDev", "Count"],
+        "Query_2",
+        "/Results/spark",
+        ["Date", "ID"]
+    )
+
     return
 
 
