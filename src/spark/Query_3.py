@@ -60,6 +60,8 @@ def query(rdd : RDD) -> tuple([list, float]) :
         )
     )
 
+    ## TODO Aggiungere Conteggio delle tuple usate
+
     print("Collecting result of Third Query")
     start = time.time()
     resultList = result.collect()

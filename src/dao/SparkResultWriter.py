@@ -21,11 +21,6 @@ def writeRdd(resultList : list, header : list, fileName : str, parentDirectory :
     return 
 
 
-def buildDataFrameFromRddResult(resultList : RDD, header : str) -> DataFrame:
-
-    return 
-
-
 def convertRddResultList(resultList : list) -> list :
     resultMatrix = []
     for row in resultList :

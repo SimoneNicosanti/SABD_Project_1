@@ -6,16 +6,14 @@ import time
 
 def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
-    # ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
-
     timeDataFrame = dataFrame.groupBy(
-        "TradingDate", "TradingTimeHour", "ID"
+        "TradingDate", "ID"
     ).agg(
         min("TradingTime"), max("TradingTime")
     ).withColumnsRenamed(
         {"min(TradingTime)" : "MinTime", "max(TradingTime)" : "MaxTime"}
     ).select(
-        "TradingDate", "TradingTimeHour", "ID", "MinTime", "MaxTime"
+        "TradingDate", "ID", "MinTime", "MaxTime"
     ).withColumn(
         "Count", 
         when(
@@ -38,23 +36,28 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
             col("Table_2.ID") == col("Times.ID")
         ]
     ).select(
-        "Table_1.TradingDate", "Times.TradingTimeHour", "Table_1.ID", "Table_1.Last", "Table_2.Last", "Times.Count"
+        "Table_1.TradingDate", "Table_1.ID", "Table_1.Last", "Table_2.Last", "Times.Count"
     ).withColumn(
         "Variation", col("Table_1.Last") - col("Table_2.Last")
     ).select(
-        "TradingDate", "TradingTimeHour", "ID", "Variation", "Count"
+        "TradingDate", "ID", "Variation", "Count"
+    ).withColumn(
+        "Country",
+        
     ).groupBy(
-        "TradingDate", "ID"
+        "TradingDate", "Country"
     ).agg(
-        avg("Variation"), stddev("Variation"), sum("Count")
-    ).withColumnsRenamed(
-        {"avg(Variation)" : "Avg" , "stddev_samp(Variation)" : "StdDev"}
+        #avg("Variation"), stddev("Variation"), sum("Count")
+        percentile_approx("Variation", 0.25), percentile_approx("Variation", 0.5), percentile_approx("Variation", 0.75), sum("Count")
     )
 
-    print("Collecting result of Second Query with SQL")
+    variationDataFrame.show()
+
+    print("Collecting Result of Third SQL Query")
     start = time.time()
-    variationDataFrame.collect()
+
     end = time.time()
     print("Execution Time >>> ", end - start)
 
-    return (variationDataFrame, end - start)
+
+    return 

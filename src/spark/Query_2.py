@@ -51,8 +51,8 @@ def query(rdd : RDD) -> tuple([list, float]) :
     print("Collecting result of Second Query")
     startTime = time.time()
     resultList = resultRdd.collect()
-    print(resultList[0])
     endTime = time.time()
+    print("Execution Time >>> ", endTime - startTime)
 
     return (resultList, endTime - startTime)
 
