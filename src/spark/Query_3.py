@@ -1,12 +1,34 @@
 from pyspark import *
 import time
 from engineering import SparkSingleton
-from spark import ComputePercentiles
 
 def query(rdd : RDD) -> tuple([list, float]) :
     ## @param rdd : RDD of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
 
-    SparkSingleton.SparkSingleton.getInstance().getSparkContext().addPyFile("/src/spark/ComputePercentiles.py")
+    #SparkSingleton.SparkSingleton.getInstance().getSparkContext().addPyFile("/src/spark/ComputePercentiles.py")
+    
+
+    def computePercentile(valueList : list, perc : float) -> tuple :
+        listLen = len(valueList)
+        product = listLen * perc
+        digits = product - int(product)
+        result = 0
+
+        if (digits == 0) :
+            firstIndex = int(product)
+            secondIndex = int(product) + 1
+
+            firstValue = valueList[firstIndex]
+            secondValue = valueList[secondIndex]
+
+            result = (firstValue + secondValue) / 2
+
+        else :
+            index = int(product)
+
+            result = valueList[index]
+    
+        return result
 
 
     result = rdd.map( ## ((Date, ID), (Time, Last, Time, Last))
@@ -21,13 +43,21 @@ def query(rdd : RDD) -> tuple([list, float]) :
     ).map( ## ((Date, ID), variation)
         lambda x : (x[0], x[1][1] - x[1][3])
     ).map( ## ((Date, Country), variation)
-        lambda x : ( (x[0][0], str(x[0][1])[str(x[0][1]).index(".") + 1 :]), x[1] )
+        lambda x : ( 
+            (x[0][0], str(x[0][1])[str(x[0][1]).index(".") + 1 :]), 
+            x[1] 
+        )
     ).groupByKey(
 
     ).map( ## ((Date, Country), listOfVariations)
         lambda x : (x[0], sorted(list(x[1])))
     ).map(
-        lambda x : ComputePercentiles.computePercentiles(x)
+        lambda x : (
+        x[0], 
+        (computePercentile(x[1], 0.25),
+        computePercentile(x[1], 0.5),
+        computePercentile(x[1], 0.75))
+        )
     )
 
     print("Collecting result of Third Query")
@@ -35,7 +65,9 @@ def query(rdd : RDD) -> tuple([list, float]) :
     resultList = result.collect()
     end = time.time()
 
-    print(resultList[0])
+    # for result in resultList :
+    #     print(result)
+    #     print("\n")
 
 
     return (resultList, end - start)

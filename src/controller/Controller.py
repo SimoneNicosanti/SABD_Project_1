@@ -54,7 +54,14 @@ def sparkController(rdd : RDD) :
     #     ["Date", "ID"]
     # )
 
-    Query_3.query(rdd)
+    (resultList_3, executionTime_3) = Query_3.query(rdd)
+    SparkResultWriter.writeRdd(
+        resultList_3,
+        ["Date", "Country", "25_Perc", "50_Perc", "75_Perc"],
+        "Query_3",
+        "/Results/spark",
+        ["Date", "Country"]
+    )
 
     return
 

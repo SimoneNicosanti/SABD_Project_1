@@ -29,7 +29,11 @@ class SparkSingleton(object) :
 
             sparkMasterUrl = "spark://" + masterName.data + ":" + masterPort.data
             
-            cls.__sparkContext = SparkContext(master = sparkMasterUrl , appName = appName.data)
+            cls.__sparkContext = SparkContext(
+                master = sparkMasterUrl , 
+                appName = appName.data, 
+            )
+
             cls.__sparkSession = SparkSession(sparkContext = cls.__sparkContext)
 
         return cls.__instance
