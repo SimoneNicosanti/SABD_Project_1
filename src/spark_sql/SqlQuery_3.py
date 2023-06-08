@@ -43,21 +43,26 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "TradingDate", "ID", "Variation", "Count"
     ).withColumn(
         "Country",
-        
+        substring("ID", -3, 3)
     ).groupBy(
         "TradingDate", "Country"
     ).agg(
         #avg("Variation"), stddev("Variation"), sum("Count")
         percentile_approx("Variation", 0.25), percentile_approx("Variation", 0.5), percentile_approx("Variation", 0.75), sum("Count")
+    ).withColumnsRenamed(
+        {
+        "percentile_approx(Variation, 0.25, 10000)" : "25_perc", 
+        "percentile_approx(Variation, 0.5, 10000)" : "50_perc",
+        "percentile_approx(Variation, 0.75, 10000)" : "75_perc",
+        "sum(Count)" : "Count"
+        }
     )
-
-    variationDataFrame.show()
 
     print("Collecting Result of Third SQL Query")
     start = time.time()
-
+    variationDataFrame.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
 
 
-    return 
+    return (variationDataFrame, end - start)

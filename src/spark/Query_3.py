@@ -40,36 +40,37 @@ def query(rdd : RDD) -> tuple([list, float]) :
             max(accum[2], x[2]) ,
             accum[3] if accum[2] > x[2] else x[3]
         )
-    ).map( ## ((Date, ID), variation)
-        lambda x : (x[0], x[1][1] - x[1][3])
-    ).map( ## ((Date, Country), variation)
+    ).map( ## ((Date, ID), (variation, count))
+        lambda x : (
+            x[0], 
+            (x[1][1] - x[1][3], 1 if x[1][0] == x[1][2] else 2)
+        )
+    ).map( ## ((Date, Country), (variation, count))
         lambda x : ( 
             (x[0][0], str(x[0][1])[str(x[0][1]).index(".") + 1 :]), 
             x[1] 
         )
-    ).groupByKey(
-
-    ).map( ## ((Date, Country), listOfVariations)
-        lambda x : (x[0], sorted(list(x[1])))
+    ).aggregateByKey(
+        zeroValue = ([], 0) ,
+        seqFunc = lambda accum, x : (accum[0] + [x[0]], accum[1] + x[1]),
+        combFunc = lambda accum_1, accum_2 : (accum_1[0] + accum_2[0], accum_1[1] + accum_2[1])
+    ).map( ## ((Date, Country), (listOfVariations, count))
+        lambda x : (x[0], (sorted(list(x[1][0])), x[1][1]))
     ).map(
         lambda x : (
         x[0], 
-        (computePercentile(x[1], 0.25),
-        computePercentile(x[1], 0.5),
-        computePercentile(x[1], 0.75))
+        (computePercentile(x[1][0], 0.25),
+        computePercentile(x[1][0], 0.5),
+        computePercentile(x[1][0], 0.75),
+        x[1][1])
         )
     )
-
-    ## TODO Aggiungere Conteggio delle tuple usate
 
     print("Collecting result of Third Query")
     start = time.time()
     resultList = result.collect()
     end = time.time()
-
-    # for result in resultList :
-    #     print(result)
-    #     print("\n")
+    print("Execution Time >>> ", end - start)
 
 
     return (resultList, end - start)

@@ -7,14 +7,33 @@ def prepareForProcessing(dataframe : DataFrame) -> DataFrame :
 
     modifiedDataframe = dataframe
 
-    ## TODO Posso rimuovere il testo dell'intestazione prima oppure lo devo fare con spark ??
+    modifiedDataframe = modifiedDataframe.where(~modifiedDataframe.value.startswith("#"))
 
+    splitCol = split(modifiedDataframe.value, ",")
+
+    modifiedDataframe = modifiedDataframe.withColumn(
+        "ID", splitCol.getItem(0)
+    ).withColumn(
+        "SecType", splitCol.getItem(1)
+    ).withColumn(
+        "Last", splitCol.getItem(21)
+    ).withColumn(
+        "TradingTime", splitCol.getItem(23)
+    ).withColumn(
+        "TradingDate", splitCol.getItem(26)
+    )
+
+    modifiedDataframe = modifiedDataframe.drop("value")
+
+    modifiedDataframe = modifiedDataframe.where(modifiedDataframe.SecType != "SecType")
+    
     # Renaming Dataframe colf for easier access
-    modifiedDataframe = modifiedDataframe.withColumnRenamed("Trading date", "TradingDate")
-    modifiedDataframe = modifiedDataframe.withColumnRenamed("Trading time", "TradingTime")
+    # modifiedDataframe = modifiedDataframe.withColumnRenamed("Trading date", "TradingDate")
+    # modifiedDataframe = modifiedDataframe.withColumnRenamed("Trading time", "TradingTime")
 
-    # Selecting only interesting cols
-    modifiedDataframe = modifiedDataframe.select("ID", "SecType", "Last", "TradingDate", "TradingTime")
+    # # Selecting only interesting cols
+    # modifiedDataframe = modifiedDataframe.select("ID", "SecType", "Last", "TradingDate", "TradingTime")
+
     # Null Date removal
     modifiedDataframe = modifiedDataframe.where(modifiedDataframe.TradingDate.isNotNull())
     # Formatting Time Field

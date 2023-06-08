@@ -8,7 +8,13 @@ def writeDataFrameAsCsv(dataFrame : DataFrame, fileName : str, parentPath : str)
     header = dataFrame.schema.names
     resultList = dataFrame.rdd.collect()
 
-    with open(os.path.join(parentPath, fileName + ".csv"), "+x") as outputFile :
+    filePath = os.path.join(parentPath, fileName + ".csv")
+    if (os.path.exists(filePath)) :
+        mode = "+w"
+    else :
+        mode = "+x"
+
+    with open(os.path.join(parentPath, fileName + ".csv"), mode) as outputFile :
         writer = csv.writer(outputFile)
         writer.writerow(header)
         writer.writerows(resultList)

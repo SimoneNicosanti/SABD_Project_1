@@ -10,7 +10,7 @@ def loadFromHdfs(fileName : str) -> DataFrame :
 
     sparkSession = SparkSingleton.SparkSingleton.getInstance().getSparkSession()
     
-    dataFrame = sparkSession.read.csv(fileUrl, inferSchema = True, header = True)
+    dataFrame = sparkSession.read.text(fileUrl)
 
     return dataFrame
 

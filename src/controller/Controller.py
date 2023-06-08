@@ -2,20 +2,16 @@ from dao import HDFSDao
 from controller import Preprocessor
 from dao import SparkResultWriter
 from dao import SparkSqlResultWriter
+from dao import EvaluationWriter
 
 from spark import Query_1, Query_2, Query_3
-from spark_sql import SqlQuery_2
+from spark_sql import SqlQuery_1, SqlQuery_2, SqlQuery_3
 
 from pyspark.sql import *
 from pyspark import *
 
 
-
-## from functools import partial
-# To use custom functions
-
-
-def controller() :
+def controller(queryNumber : int = 0) :
     
     dataFrame : DataFrame = HDFSDao.loadFromHdfs("Dataset.csv")
     
@@ -30,48 +26,90 @@ def controller() :
     dataFrame.count()
     rdd.count()
 
-    sparkController(rdd)
-    sparkSqlController(dataFrame)
+    if (queryNumber == 0) :
+        for i in range(1, 4) :
+            executionTime = sparkController(rdd, i)
+            executionTimeSql = sparkSqlController(dataFrame, i)
+
+            EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
+            EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
+            
+    else :
+        sparkController(rdd, queryNumber)
+        sparkSqlController(rdd, queryNumber)
+    
+    
+
+def sparkController(rdd : RDD, queryNumber : int) : 
+
+    if (queryNumber == 1) :
+        (resultList_1, executionTime_1) = Query_1.query(rdd)
+        SparkResultWriter.writeRdd(
+            resultList = resultList_1, 
+            header = ["Date", "Hour", "ID", "Min", "Mean", "Max", "Count"], 
+            fileName = "Query_1", 
+            parentDirectory = "/Results/spark",
+            sortList = ["Date", "Hour", "ID"]
+        )
+
+        return executionTime_1
+
+    elif (queryNumber == 2) :
+        (resultList_2, executionTime_2) = Query_2.query(rdd)
+        SparkResultWriter.writeRdd(
+            resultList_2,
+            ["Date", "ID", "Mean", "StdDev", "Count"],
+            "Query_2",
+            "/Results/spark",
+            ["Date", "ID"]
+        )
+
+        return executionTime_2
+
+    elif (queryNumber == 3) :
+        (resultList_3, executionTime_3) = Query_3.query(rdd)
+        SparkResultWriter.writeRdd(
+            resultList_3,
+            ["Date", "Country", "25_Perc", "50_Perc", "75_Perc", "Count"],
+            "Query_3",
+            "/Results/spark",
+            ["Date", "Country"]
+        )
+        return executionTime_3
+
+    return 0
 
 
-def sparkController(rdd : RDD) :
-    #print(rdd.collect()[0])
-    # (resultList_1, executionTime_1) = Query_1.query(rdd)
-    # SparkResultWriter.writeRdd(
-    #     resultList = resultList_1, 
-    #     header = ["Date", "Hour", "ID", "Min", "Mean", "Max", "Count"], 
-    #     fileName = "Query_1", 
-    #     parentDirectory = "/Results/spark",
-    #     sortList = ["Date", "Hour", "ID"])
+def sparkSqlController(dataFrame : DataFrame, queryNumber : int) :
 
+    if (queryNumber == 1) :
+        (result_1, executionTime_1) = SqlQuery_1.query(dataFrame)
+        SparkSqlResultWriter.writeDataFrame(
+            result_1,
+            "Query_1",
+            "/Results/spark_sql",
+            ["TradingDate", "TradingTimeHour", "ID"]
+        )
+        return executionTime_1
 
-    (resultList_2, executionTime_2) = Query_2.query(rdd)
-    SparkResultWriter.writeRdd(
-        resultList_2,
-        ["Date", "ID", "Mean", "StdDev", "Count"],
-        "Query_2",
-        "/Results/spark",
-        ["Date", "ID"]
-    )
+    elif (queryNumber == 2) :
+        (result_2, executionTime_2) = SqlQuery_2.query(dataFrame)
+        SparkSqlResultWriter.writeDataFrame(
+            result_2, 
+            "Query_2", 
+            "/Results/spark_sql", 
+            ["TradingDate", "ID"]
+        )
+        return executionTime_2
 
-    # (resultList_3, executionTime_3) = Query_3.query(rdd)
-    # SparkResultWriter.writeRdd(
-    #     resultList_3,
-    #     ["Date", "Country", "25_Perc", "50_Perc", "75_Perc"],
-    #     "Query_3",
-    #     "/Results/spark",
-    #     ["Date", "Country"]
-    # )
+    elif (queryNumber == 3) :
+        (result_3, executionTime_3) = SqlQuery_3.query(dataFrame)
+        SparkSqlResultWriter.writeDataFrame(
+            result_3,
+            "Query_3",
+            "/Results/spark_sql",
+            ["TradingDate", "Country"]
+        )
+        return executionTime_3
 
-    return
-
-
-def sparkSqlController(dataFrame : DataFrame) :
-    (result_2, executionTime_2) = SqlQuery_2.query(dataFrame)
-    SparkSqlResultWriter.writeDataFrame(
-        result_2, 
-        "Query_2", 
-        "/Results/spark_sql", 
-        ["TradingDate", "ID"]
-    )
-    return
+    return 0

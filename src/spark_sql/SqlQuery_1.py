@@ -7,7 +7,9 @@ def query(dataframe : DataFrame) -> tuple([DataFrame, float]) :
     result = dataframe.select(
         "TradingDate", "TradingTimeHour", "ID", "Last"
     ).where(
-        dataframe.SecType == "E" and dataframe.ID.endswith(".FR")
+        dataframe.SecType == "E"
+    ).where(
+        dataframe.ID.endswith(".FR")
     ).groupBy(
         "TradingDate", "TradingTimeHour", "ID"
     ).agg(
