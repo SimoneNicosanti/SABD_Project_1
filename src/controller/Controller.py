@@ -36,7 +36,7 @@ def controller(queryNumber : int = 0) :
             
     else :
         sparkController(rdd, queryNumber)
-        sparkSqlController(rdd, queryNumber)
+        sparkSqlController(dataFrame, queryNumber)
     
     
 

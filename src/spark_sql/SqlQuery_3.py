@@ -58,7 +58,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         }
     )
 
-    print("Collecting Result of Third SQL Query")
+    print("Collecting Result of Third Query with SQL")
     start = time.time()
     variationDataFrame.collect()
     end = time.time()

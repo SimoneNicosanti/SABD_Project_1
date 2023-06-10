@@ -35,7 +35,12 @@ def prepareForProcessing(dataframe : DataFrame) -> DataFrame :
     # modifiedDataframe = modifiedDataframe.select("ID", "SecType", "Last", "TradingDate", "TradingTime")
 
     # Null Date removal
-    modifiedDataframe = modifiedDataframe.where(modifiedDataframe.TradingDate.isNotNull())
+    modifiedDataframe = modifiedDataframe.where(
+        modifiedDataframe.TradingDate.isNotNull()
+    ).where(
+        modifiedDataframe.TradingDate != ""
+    )
+
     # Formatting Time Field
     modifiedDataframe = modifiedDataframe.withColumn("TradingTime", date_format("TradingTime", "HH:mm:ss.SSSS"))
     # Formatting Date Field

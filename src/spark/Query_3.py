@@ -1,6 +1,6 @@
 from pyspark import *
 import time
-from engineering import SparkSingleton
+import statistics
 
 def query(rdd : RDD) -> tuple([list, float]) :
     ## @param rdd : RDD of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
@@ -57,14 +57,30 @@ def query(rdd : RDD) -> tuple([list, float]) :
     ).map( ## ((Date, Country), (listOfVariations, count))
         lambda x : (x[0], (sorted(list(x[1][0])), x[1][1]))
     ).map(
+        lambda x : (x[0], (statistics.quantiles(x[1][0], n = 100), x[1][1]))
+    ).map(
         lambda x : (
-        x[0], 
-        (computePercentile(x[1][0], 0.25),
-        computePercentile(x[1][0], 0.5),
-        computePercentile(x[1][0], 0.75),
-        x[1][1])
+            x[0],
+            (
+                x[1][0][25],
+                x[1][0][50],
+                x[1][0][75],
+                x[1][1]
+            )
         )
     )
+
+    ## TODO CONTROLLA CHE SIA GIUSTA LA MODIFICA CON LIBRERIA statistics
+    
+    # .map(
+    #     lambda x : (
+    #     x[0], 
+    #     (computePercentile(x[1][0], 0.25),
+    #     computePercentile(x[1][0], 0.5),
+    #     computePercentile(x[1][0], 0.75),
+    #     x[1][1])
+    #     )
+    # )
 
     print("Collecting result of Third Query")
     start = time.time()
