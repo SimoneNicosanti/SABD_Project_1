@@ -20,6 +20,7 @@ def query(dataframe : DataFrame) -> tuple([DataFrame, float]) :
     start = time.time()
     result.collect()
     end = time.time()
+    print("Execution Time >>> ", end - start)
 
 
     return (result, end - start)

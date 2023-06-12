@@ -4,11 +4,12 @@ from dao import RedisDao
 
 from pyspark.sql import *
 from pyspark import *
+from pyspark.sql.types import *
 
 from engineering import SparkSingleton
 
 def writeRdd(resultList : list, header : list, fileName : str, parentDirectory : str, sortList : list) -> None :
-    
+    ## TODO Ordinamento per la seconda query
     sparkSession = SparkSingleton.SparkSingleton.getInstance().getSparkSession()
 
     dataFrame = sparkSession.createDataFrame(convertRddResultList(resultList), schema = header)
@@ -29,10 +30,10 @@ def convertRddResultList(resultList : list) -> list :
         rowList = []
 
         for keyElem in key :
-            rowList.append(keyElem)
+            rowList.append(str(keyElem))
 
         for valueElem in value :
-            rowList.append(valueElem)
+            rowList.append(str(valueElem))
 
         resultMatrix.append(rowList)
 

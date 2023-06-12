@@ -61,7 +61,7 @@ def sparkController(rdd : RDD, queryNumber : int) :
             ["Date", "ID", "Mean", "StdDev", "Count"],
             "Query_2",
             "/Results/spark",
-            ["Date", "ID"]
+            ["Date", "Mean"]
         )
 
         return executionTime_2
