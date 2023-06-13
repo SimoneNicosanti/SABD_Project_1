@@ -72,6 +72,8 @@ def query(rdd : RDD) -> tuple([list, float]) :
     end = time.time()
     print("Execution Time >>> ", end - start)
 
+    ## TODO Rivedere Query
+
 
     return (resultList, end - start)
 

@@ -12,7 +12,7 @@ docker compose exec master hdfs dfs -chmod 777 /
 docker compose exec master hdfs dfs -mkdir /Results
 docker compose exec master hdfs dfs -chmod 777 /Results
 
-docker build ../ -f dockerfile.client -t spark-client
+#docker build ../ -f dockerfile.client -t spark-client
 cd ../
 docker run -t -i -p 4040:4040 --network my_network --name=client --volume ./src:/src --volume ./Results:/Results --workdir /src spark-client 
 docker exec -t -d client sh -c "chmod 777 /Results"

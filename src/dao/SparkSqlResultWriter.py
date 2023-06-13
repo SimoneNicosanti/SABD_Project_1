@@ -7,7 +7,7 @@ from pyspark import *
 
 def writeDataFrame(dataFrame : DataFrame, fileName : str, parentDirectory : str, sortList : list) :
 
-    dataFrame = dataFrame.sort(sortList).coalesce(1)
+    dataFrame = dataFrame.sort(sortList)
 
     FileSystemDao.writeDataFrameAsCsv(dataFrame, fileName, parentDirectory)
     HDFSDao.writeDataFrameAsCsv(dataFrame, fileName, parentDirectory)

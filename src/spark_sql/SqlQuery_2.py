@@ -122,6 +122,9 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "stddev_samp(Variation)" , "StdDev"
     )
     
+    ## TODO Ranking
+    ## TODO Tuple Count
+
     
 
     #variationsDataFrame.show(n = 100)
@@ -142,10 +145,9 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
     print("Collecting result of Second Query with SQL")
     start = time.time()
+    variationsDataFrame = variationsDataFrame.persist()
     variationsDataFrame.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
-
-    ## TODO Classifica Azioni
 
     return (variationsDataFrame, end - start)

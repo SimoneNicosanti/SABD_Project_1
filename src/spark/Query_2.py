@@ -133,6 +133,8 @@ def query(rdd : RDD) -> tuple([list, float]) :
 
     # return
 
+    ## TODO Ranking
+    ## TODO Tuple Count
 
     print("Collecting result of Second Query")
     start = time.time()

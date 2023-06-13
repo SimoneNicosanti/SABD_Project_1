@@ -64,5 +64,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     end = time.time()
     print("Execution Time >>> ", end - start)
 
+    ## TODO Rivedere Query
+
 
     return (variationDataFrame, end - start)
