@@ -14,16 +14,16 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         min("TradingTime"), max("TradingTime")
     ).withColumnsRenamed(
         {"min(TradingTime)" : "MinTime", "max(TradingTime)" : "MaxTime"}
-    ).select(
-        "TradingDate", "TradingTimeHour", "ID", "MinTime", "MaxTime"
-    ).withColumn(
-        "Count", 
-        when(
-            col("MinTime") == col("MaxTime"), 1
-        ).otherwise(2)
     )
+    
+    # .select(
+    #     "TradingDate", "TradingTimeHour", "ID", "MinTime", "MaxTime"
+    # )
 
-    variationDataFrame = dataFrame.alias("Table_1").join(
+    #timeDataFrame.show() 
+    
+
+    pricesDataFrame = dataFrame.alias("Table_1").withColumnRenamed("Last", "MinLast").join(
         timeDataFrame.alias("Times"),
         on = [
             col("Table_1.TradingDate") == col("Times.TradingDate"),
@@ -31,25 +31,119 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
             col("Table_1.ID") == col("Times.ID")
         ]
     ).join(
-        dataFrame.alias("Table_2"),
+        dataFrame.withColumnRenamed("Last", "MaxLast").alias("Table_2"),
         on = [
             col("Table_2.TradingDate") == col("Times.TradingDate"),
             col("Table_2.TradingTime") == col("Times.MaxTime"),
             col("Table_2.ID") == col("Times.ID")
         ]
     ).select(
-        "Table_1.TradingDate", "Times.TradingTimeHour", "Table_1.ID", "Table_1.Last", "Table_2.Last", "Times.Count"
-    ).withColumn(
-        "Variation", col("Table_1.Last") - col("Table_2.Last")
+        "Table_1.TradingDate", "Times.TradingTimeHour", "Table_1.ID", "MinTime", "MinLast", "MaxTime", "MaxLast"
+    )
+    # .withColumnRenamed(
+    #     "Table_1.Last", "MinLast"
+    # ).withColumnRenamed(
+    #     "Table_2.Last", "MaxLast"
+    # ).select(
+    #     "Table_1.TradingDate", "Times.TradingTimeHour", "Table_1.ID", "MinLast", "MaxLast"
+    # )
+
+
+    pricesDataFrame.show()
+
+    pricesDataFrame_1 = pricesDataFrame.where(
+        "MinTime" == concat("TradingTimeHour", lit(":00:00.0000"))
     ).select(
-        "TradingDate", "TradingTimeHour", "ID", "Variation", "Count"
+        "TradingDate", "TradingTimeHour", "ID", "MinLast"
+    ).withColumnRenamed(
+        "MinLast" , "Last"
+    )
+
+    pricesDataFrame_1.show()
+
+    pricesDataFrame_2 = pricesDataFrame.select(
+        "TradingDate", "TradingTimeHour", "ID", "MaxLast"
+    ).withColumn(
+        "TradingTimeHour", col("TradingTimeHour").substr(1, 2).cast("int") + 1
+    ).withColumnRenamed(
+        "MaxLast", "Last"
+    )
+
+    pricesDataFrame_2.show()
+
+    initialPricesDataFrame = pricesDataFrame_1.union(pricesDataFrame_2)
+
+    initialPricesDataFrame.show()
+
+    prevHourDataFrame = initialPricesDataFrame.alias("First").join(
+        initialPricesDataFrame.alias("Second"),
+        on = [
+            col("First.TradingDate") == col("Second.TradingDate"),
+            col("First.ID") == col("Second.ID")
+        ]
+    ).where(
+        "First.TradingTimeHour < Second.TradingTimeHour"
+    ).groupBy(
+        "First.TradingDate", "Second.TradingTimeHour", "First.ID"
+    ).agg(
+        max("First.TradingTimeHour")
+    ).withColumnRenamed(
+        "max(First.TradingTimeHour)" , "PrevHour"
+    ).withColumnRenamed(
+        "TradingTimeHour", "Hour"
+    )
+
+    #prevHourDataFrame.show(n = 1000)
+
+    pricesCouplesDataFrame = initialPricesDataFrame.withColumnRenamed("Last", "PrevPrice").alias("First").join(
+        prevHourDataFrame.alias("Times"),
+        on = [
+            col("First.TradingDate") == col("Times.TradingDate"),
+            col("First.ID") == col("Times.ID"),
+            col("First.TradingTimeHour") == col("Times.PrevHour")
+        ]
+    ).join(
+        initialPricesDataFrame.withColumnRenamed("Last", "Price").alias("Second"),
+        on = [
+            col("Second.TradingDate") == col("Times.TradingDate"),
+            col("Second.ID") == col("Times.ID"),
+            col("Second.TradingTimeHour") == col("Times.Hour")
+        ]
+    ).select(
+        "Times.TradingDate", "Times.ID", "Times.PrevHour", "Times.Hour", "First.PrevPrice", "Second.Price"
+    )
+
+    pricesCouplesDataFrame.show()
+
+    variationsDataFrame = pricesCouplesDataFrame.withColumn(
+        "Variation", col("Price") - col("PrevPrice")
+    ).select(
+        "TradingDate", "ID", "Variation"
     ).groupBy(
         "TradingDate", "ID"
     ).agg(
-        avg("Variation"), stddev("Variation"), sum("Count")
-    ).withColumnsRenamed(
-        {"avg(Variation)" : "Avg" , "stddev_samp(Variation)" : "StdDev"}
+        avg("Variation"), stddev("Variation")
     )
+
+    variationsDataFrame.show(n = 100)
+
+    # TODO Prendere quello che ha TradingHour più piccolo?? Non è necessario in teoria ma andrebbe fatto
+
+
+
+    return
+    
+    # .withColumn(
+    #     "Variation", col("Table_1.Last") - col("Table_2.Last")
+    # ).select(
+    #     "TradingDate", "TradingTimeHour", "ID", "Variation", "Count"
+    # ).groupBy(
+    #     "TradingDate", "ID"
+    # ).agg(
+    #     avg("Variation"), stddev("Variation"), sum("Count")
+    # ).withColumnsRenamed(
+    #     {"avg(Variation)" : "Avg" , "stddev_samp(Variation)" : "StdDev"}
+    # )
 
     print("Collecting result of Second Query with SQL")
     start = time.time()

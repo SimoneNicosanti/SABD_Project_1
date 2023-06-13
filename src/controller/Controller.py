@@ -35,7 +35,7 @@ def controller(queryNumber : int = 0) :
             EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
             
     else :
-        sparkController(rdd, queryNumber)
+        # sparkController(rdd, queryNumber)
         sparkSqlController(dataFrame, queryNumber)
     
     
