@@ -40,16 +40,9 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).select(
         "Table_1.TradingDate", "Times.TradingTimeHour", "Table_1.ID", "MinTime", "MinLast", "MaxTime", "MaxLast"
     )
-    # .withColumnRenamed(
-    #     "Table_1.Last", "MinLast"
-    # ).withColumnRenamed(
-    #     "Table_2.Last", "MaxLast"
-    # ).select(
-    #     "Table_1.TradingDate", "Times.TradingTimeHour", "Table_1.ID", "MinLast", "MaxLast"
-    # )
 
 
-    pricesDataFrame.show()
+    #pricesDataFrame.show()
 
     pricesDataFrame_1 = pricesDataFrame.where(
         "MinTime" == concat("TradingTimeHour", lit(":00:00.0000"))
@@ -59,7 +52,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "MinLast" , "Last"
     )
 
-    pricesDataFrame_1.show()
+    #pricesDataFrame_1.show()
 
     pricesDataFrame_2 = pricesDataFrame.select(
         "TradingDate", "TradingTimeHour", "ID", "MaxLast"
@@ -69,11 +62,11 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "MaxLast", "Last"
     )
 
-    pricesDataFrame_2.show()
-
+    #pricesDataFrame_2.show()
+    # TODO Prendere quello che ha TradingHour più piccolo?? Non è necessario in teoria ma andrebbe fatto
     initialPricesDataFrame = pricesDataFrame_1.union(pricesDataFrame_2)
 
-    initialPricesDataFrame.show()
+    #initialPricesDataFrame.show()
 
     prevHourDataFrame = initialPricesDataFrame.alias("First").join(
         initialPricesDataFrame.alias("Second"),
@@ -113,7 +106,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "Times.TradingDate", "Times.ID", "Times.PrevHour", "Times.Hour", "First.PrevPrice", "Second.Price"
     )
 
-    pricesCouplesDataFrame.show()
+    #pricesCouplesDataFrame.show()
 
     variationsDataFrame = pricesCouplesDataFrame.withColumn(
         "Variation", col("Price") - col("PrevPrice")
@@ -122,16 +115,18 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).groupBy(
         "TradingDate", "ID"
     ).agg(
-        avg("Variation"), stddev("Variation")
+        avg("Variation"), stddev_pop("Variation")
+    ).withColumnRenamed(
+        "avg(Variation)" , "Avg"
+    ).withColumnRenamed(
+        "stddev_samp(Variation)" , "StdDev"
     )
+    
+    
 
-    variationsDataFrame.show(n = 100)
+    #variationsDataFrame.show(n = 100)
 
-    # TODO Prendere quello che ha TradingHour più piccolo?? Non è necessario in teoria ma andrebbe fatto
-
-
-
-    return
+   
     
     # .withColumn(
     #     "Variation", col("Table_1.Last") - col("Table_2.Last")
@@ -147,10 +142,10 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
     print("Collecting result of Second Query with SQL")
     start = time.time()
-    variationDataFrame.collect()
+    variationsDataFrame.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
 
     ## TODO Classifica Azioni
 
-    return (variationDataFrame, end - start)
+    return (variationsDataFrame, end - start)

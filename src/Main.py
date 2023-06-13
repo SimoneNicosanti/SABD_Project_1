@@ -19,6 +19,10 @@ def main() :
     elif (len(sys.argv) == 2) :
         queryNumber = int(sys.argv[1])
         Controller.controller(queryNumber)
+    elif (len(sys.argv) == 3) :
+        queryNumber = int(sys.argv[1])
+        framework = int(sys.argv[2])
+        Controller.controller(queryNumber, framework)
     else :
         print("Not Valid Input")
         return

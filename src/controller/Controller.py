@@ -11,7 +11,7 @@ from pyspark.sql import *
 from pyspark import *
 
 
-def controller(queryNumber : int = 0) :
+def controller(queryNumber : int = 0, framework : int = 0) :
     
     dataFrame : DataFrame = HDFSDao.loadFromHdfs("Dataset.csv")
     
@@ -28,16 +28,27 @@ def controller(queryNumber : int = 0) :
 
     if (queryNumber == 0) :
         for i in range(1, 4) :
-            executionTime = sparkController(rdd, i)
-            executionTimeSql = sparkSqlController(dataFrame, i)
+            if (framework == 1) :
+                executionTime = sparkController(rdd, i)
+                EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
+            elif (framework == 2) :
+                executionTimeSql = sparkSqlController(dataFrame, i)
+                EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
+            else :
+                executionTime = sparkController(rdd, i)
+                EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
+                executionTimeSql = sparkSqlController(dataFrame, i)
+                EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
 
-            EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
-            EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
             
     else :
-        # sparkController(rdd, queryNumber)
-        sparkSqlController(dataFrame, queryNumber)
-    
+        if (framework == 1) :
+            sparkController(rdd, queryNumber)
+        elif (framework == 2) :
+            sparkSqlController(dataFrame, queryNumber)
+        else :
+            sparkController(rdd, queryNumber)
+            sparkSqlController(dataFrame, queryNumber)
     
 
 def sparkController(rdd : RDD, queryNumber : int) : 
