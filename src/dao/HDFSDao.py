@@ -8,7 +8,7 @@ def loadFromHdfs(fileName : str) -> DataFrame :
     baseHdfsUrl : str = loadHdfsUrl()
     fileUrl = baseHdfsUrl + "/" + fileName
 
-    sparkSession = SparkSingleton.SparkSingleton.getInstance().getSparkSession()
+    sparkSession = SparkSingleton.getSparkSession()
     
     dataFrame = sparkSession.read.text(fileUrl)
 

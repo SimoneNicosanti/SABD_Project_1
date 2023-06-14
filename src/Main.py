@@ -2,6 +2,8 @@ from controller import Controller
 import os
 import shutil
 import sys
+from engineering import RedisSingleton
+import redis
 
 OUTPUT_DIR = "/Results"
 

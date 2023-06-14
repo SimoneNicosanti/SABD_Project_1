@@ -74,4 +74,6 @@ services:
     image: redis
     networks:
       - my_network
+    ports:
+      - "6379:6379"
     tty : true
