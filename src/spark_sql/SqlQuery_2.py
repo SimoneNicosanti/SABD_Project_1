@@ -2,6 +2,7 @@ from pyspark.sql import *
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 import time
+from pyspark.sql.window import Window
 
 
 def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
@@ -44,17 +45,17 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
     #pricesDataFrame.show()
 
-    pricesDataFrame_1 = pricesDataFrame.where(
-        "MinTime" == concat("TradingTimeHour", lit(":00:00.0000"))
-    ).select(
-        "TradingDate", "TradingTimeHour", "ID", "MinLast"
-    ).withColumnRenamed(
-        "MinLast" , "Last"
-    )
+    # pricesDataFrame_1 = pricesDataFrame.where(
+    #     "MinTime" == concat("TradingTimeHour", lit(":00:00.0000"))
+    # ).select(
+    #     "TradingDate", "TradingTimeHour", "ID", "MinLast"
+    # ).withColumnRenamed(
+    #     "MinLast" , "Last"
+    # )
 
     #pricesDataFrame_1.show()
 
-    pricesDataFrame_2 = pricesDataFrame.select(
+    initialPricesDataFrame = pricesDataFrame.select(
         "TradingDate", "TradingTimeHour", "ID", "MaxLast"
     ).withColumn(
         "TradingTimeHour", col("TradingTimeHour").substr(1, 2).cast("int") + 1
@@ -64,7 +65,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
     #pricesDataFrame_2.show()
     # TODO Prendere quello che ha TradingHour più piccolo?? Non è necessario in teoria ma andrebbe fatto
-    initialPricesDataFrame = pricesDataFrame_1.union(pricesDataFrame_2)
+    # initialPricesDataFrame = pricesDataFrame_1.union(pricesDataFrame_2)
 
     #initialPricesDataFrame.show()
 
@@ -119,10 +120,42 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).withColumnRenamed(
         "avg(Variation)" , "Avg"
     ).withColumnRenamed(
-        "stddev_samp(Variation)" , "StdDev"
+        "stddev_pop(Variation)" , "StdDev"
     )
+
+    variationsDataFrame.persist()
+
+    bestWindows = Window.partitionBy(
+        "TradingDate"
+    ).orderBy(
+        col("TradingDate"),
+        col("Avg").desc()
+    )
+
+    bestRows = variationsDataFrame.withColumn(
+        "Row" ,row_number().over(bestWindows)
+    ).filter(
+        col("Row") <= 5
+    ).drop("Row")
+
+
+    worstWindows = Window.partitionBy(
+        "TradingDate"
+    ).orderBy(
+        col("TradingDate"),
+        col("Avg")
+    )
+
+    worstRows = variationsDataFrame.withColumn(
+        "Row" ,row_number().over(worstWindows)
+    ).filter(
+        col("Row") <= 5
+    ).drop("Row")
+
+
+    resultDataFrame = bestRows.union(worstRows)
+    #resultDataFrame.show(n = 100)
     
-    ## TODO Ranking
     ## TODO Tuple Count
 
     
@@ -145,9 +178,9 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
     print("Collecting result of Second Query with SQL")
     start = time.time()
-    variationsDataFrame = variationsDataFrame.persist()
-    variationsDataFrame.collect()
+    resultDataFrame = resultDataFrame.persist()
+    resultDataFrame.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
 
-    return (variationsDataFrame, end - start)
+    return (resultDataFrame, end - start)

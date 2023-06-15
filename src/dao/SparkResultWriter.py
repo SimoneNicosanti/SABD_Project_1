@@ -10,16 +10,20 @@ from pyspark.sql.types import *
 from engineering import SparkSingleton
 
 
-def writeRdd(resultList : list, header : list, fileName : str, parentDirectory : str, sortList : list) -> None :
-    ## TODO Ordinamento per la seconda query
+def writeRdd(resultList : list, header : list, fileName : str, parentDirectory : str, sortList : list, ascendingList : list = None) -> None :
     sparkSession = SparkSingleton.getSparkSession()
 
     dataFrame = sparkSession.createDataFrame(convertRddResultList(resultList), schema = header)
-    dataFrame = dataFrame.sort(sortList).coalesce(1)
+    if (ascendingList == None) :
+        dataFrame = dataFrame.sort(sortList).coalesce(1)
+    else :
+        dataFrame = dataFrame.sort(
+            sortList, 
+            ascending = ascendingList)
 
     FileSystemDao.writeDataFrameAsCsv(dataFrame, fileName, parentDirectory)
     HDFSDao.writeDataFrameAsCsv(dataFrame, fileName, parentDirectory)
-    RedisDao.putResult(resultList, fileName)
+    # RedisDao.putResult(resultList, fileName)
 
     return 
 

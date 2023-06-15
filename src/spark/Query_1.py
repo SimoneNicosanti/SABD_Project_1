@@ -13,7 +13,7 @@ def query(rdd : RDD) -> tuple([list, float]) :
         zeroValue = StatCounter(),
         seqFunc = StatCounter.merge,
         combFunc = StatCounter.mergeStats
-    ).map( 
+    ).map( ## ((ID, TradingDate, TradingHour), (min, avg, max, count))
         lambda x : (x[0], (x[1].min(), x[1].mean(), x[1].max(), x[1].count()))
     ) 
 
@@ -25,3 +25,4 @@ def query(rdd : RDD) -> tuple([list, float]) :
     print("Execution Time >>> ", end - start)
 
     return (resultList, end - start)
+

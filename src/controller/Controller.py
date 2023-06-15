@@ -72,7 +72,8 @@ def sparkController(rdd : RDD, queryNumber : int) :
             ["Date", "ID", "Mean", "StdDev", "Count"],
             "Query_2",
             "/Results/spark",
-            ["Date", "ID"]
+            ["Date", "Mean"],
+            [True, False]
         )
 
         return executionTime_2
@@ -109,7 +110,7 @@ def sparkSqlController(dataFrame : DataFrame, queryNumber : int) :
             result_2, 
             "Query_2", 
             "/Results/spark_sql", 
-            ["TradingDate", "ID"]
+            ["TradingDate", "Avg"]
         )
         return executionTime_2
 
