@@ -4,8 +4,10 @@ import shutil
 import sys
 from engineering import RedisSingleton
 import redis
+from engineering import SparkSingleton
 
 OUTPUT_DIR = "/Results"
+RUN_NUMBER = 10
 
 ## Arguments
 ## 1. Query Number
@@ -17,9 +19,13 @@ def main() :
     
     if (len(sys.argv) == 1) :
         Controller.controller()
+        # for i in range(0, RUN_NUMBER) :
+        #     Controller.controller()
+
     elif (len(sys.argv) == 2) :
         queryNumber = int(sys.argv[1])
         Controller.controller(queryNumber)
+
     elif (len(sys.argv) == 3) :
         queryNumber = int(sys.argv[1])
         framework = int(sys.argv[2])
@@ -27,6 +33,8 @@ def main() :
     else :
         print("Not Valid Input")
         return
+
+    SparkSingleton.resetConnection()
 
     input("Press Enter to Exit >>>")
 
