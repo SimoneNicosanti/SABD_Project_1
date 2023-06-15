@@ -3,10 +3,7 @@ import time
 import statistics
 
 def query(rdd : RDD) -> tuple([list, float]) :
-    ## @param rdd : RDD of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
-
-    #SparkSingleton.SparkSingleton.getInstance().getSparkContext().addPyFile("/src/spark/ComputePercentiles.py")
-    
+    ## @param rdd : RDD of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']    
 
     def computePercentile(valueList : list, perc : float) -> tuple :
         listLen = len(valueList)
@@ -25,7 +22,6 @@ def query(rdd : RDD) -> tuple([list, float]) :
 
         else :
             index = int(product)
-
             result = valueList[index]
     
         return result
@@ -40,30 +36,28 @@ def query(rdd : RDD) -> tuple([list, float]) :
             max(accum[2], x[2]) ,
             accum[3] if accum[2] > x[2] else x[3]
         )
-    ).map( ## ((Date, ID), (variation, count))
-        lambda x : (
-            x[0], 
-            (x[1][1] - x[1][3], 1 if x[1][0] == x[1][2] else 2)
-        )
+    ).filter( ## Filter for those actions which have at least two Times i.e. two trades
+        lambda x : x[1][0] != x[1][2]
+    ).mapValues( ## ((Date, ID), (variation, count))
+        lambda x : (x[3] - x[1], 2)
     ).map( ## ((Date, Country), (variation, count))
         lambda x : ( 
-            (x[0][0], str(x[0][1])[str(x[0][1]).index(".") + 1 :]), 
+            (x[0][0], str(x[0][1])[str(x[0][1]).index(".") + 1 : ]), 
             x[1] 
         )
-    ).aggregateByKey(
+    ).aggregateByKey( ## ((Date, Country), (ListOfVariations, Count))
         zeroValue = ([], 0) ,
         seqFunc = lambda accum, x : (accum[0] + [x[0]], accum[1] + x[1]),
         combFunc = lambda accum_1, accum_2 : (accum_1[0] + accum_2[0], accum_1[1] + accum_2[1])
-    ).map( ## ((Date, Country), (listOfVariations, count))
-        lambda x : (x[0], (sorted(list(x[1][0])), x[1][1]))
-    ).map(
+    ).mapValues( ## ((Date, Country), (sortedListOfVariations, count))
+        lambda x : (sorted(list(x[0])), x[1])
+    ).mapValues( ## ((Date, Country), (25_perc, 50_perc, 75_perc, count))
         lambda x : (
-        x[0], 
-        (computePercentile(x[1][0], 0.25),
-        computePercentile(x[1][0], 0.5),
-        computePercentile(x[1][0], 0.75),
-        x[1][1])
-        )
+            computePercentile(x[0], 0.25),
+            computePercentile(x[0], 0.5),
+            computePercentile(x[0], 0.75),
+            x[1]
+        )  
     )
 
     print("Collecting result of Third Query")
@@ -71,9 +65,6 @@ def query(rdd : RDD) -> tuple([list, float]) :
     resultList = result.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
-
-    ## TODO Rivedere Query
-
 
     return (resultList, end - start)
 

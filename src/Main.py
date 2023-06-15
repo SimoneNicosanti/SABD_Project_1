@@ -8,9 +8,8 @@ import redis
 OUTPUT_DIR = "/Results"
 
 ## Arguments
-## 1. Query Number : 0 for all - else 1, 2, 3
-## 2. Evaluate : y/n
-## 3. Output : y/n
+## 1. Query Number
+## 2. Framework: 1 == Spark, 2 == SparkSql, else == both
 
 def main() :
 

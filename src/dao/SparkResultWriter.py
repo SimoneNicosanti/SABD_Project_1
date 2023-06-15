@@ -2,6 +2,7 @@ from dao import FileSystemDao
 from dao import HDFSDao
 from dao import RedisDao
 from engineering import SparkSingleton
+from dao import SparkSqlResultWriter
 
 from pyspark.sql import *
 from pyspark import *
@@ -14,15 +15,8 @@ def writeRdd(resultList : list, header : list, fileName : str, parentDirectory :
     sparkSession = SparkSingleton.getSparkSession()
 
     dataFrame = sparkSession.createDataFrame(convertRddResultList(resultList), schema = header)
-    if (ascendingList == None) :
-        dataFrame = dataFrame.sort(sortList).coalesce(1)
-    else :
-        dataFrame = dataFrame.sort(
-            sortList, 
-            ascending = ascendingList)
 
-    FileSystemDao.writeDataFrameAsCsv(dataFrame, fileName, parentDirectory)
-    HDFSDao.writeDataFrameAsCsv(dataFrame, fileName, parentDirectory)
+    SparkSqlResultWriter.writeDataFrame(dataFrame, fileName, parentDirectory, sortList, ascendingList)
     # RedisDao.putResult(resultList, fileName)
 
     return 

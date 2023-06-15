@@ -110,7 +110,8 @@ def sparkSqlController(dataFrame : DataFrame, queryNumber : int) :
             result_2, 
             "Query_2", 
             "/Results/spark_sql", 
-            ["TradingDate", "Avg"]
+            ["TradingDate", "Avg"],
+            [True, False]
         )
         return executionTime_2
 

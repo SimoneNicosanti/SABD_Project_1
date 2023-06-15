@@ -26,21 +26,21 @@ services:
       - my_network
     tty: true
 
-  slave2:
-    image: matnar/hadoop
-    ports:
-      - "9863:9864"
-    networks:
-      - my_network
-    tty: true
+  # slave2:
+  #   image: matnar/hadoop
+  #   ports:
+  #     - "9863:9864"
+  #   networks:
+  #     - my_network
+  #   tty: true
 
-  slave3:
-    image: matnar/hadoop
-    ports:
-      - "9862:9864"
-    networks:
-      - my_network
-    tty: true
+  # slave3:
+  #   image: matnar/hadoop
+  #   ports:
+  #     - "9862:9864"
+  #   networks:
+  #     - my_network
+  #   tty: true
 
 
   ## Spark

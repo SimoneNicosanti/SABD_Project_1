@@ -14,11 +14,11 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         {"min(TradingTime)" : "MinTime", "max(TradingTime)" : "MaxTime"}
     ).select(
         "TradingDate", "ID", "MinTime", "MaxTime"
+    ).filter(
+        col("MinTime") != col("MaxTime")
     ).withColumn(
         "Count", 
-        when(
-            col("MinTime") == col("MaxTime"), 1
-        ).otherwise(2)
+        lit(2)
     )
 
     variationDataFrame = dataFrame.alias("Table_1").join(
@@ -38,7 +38,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).select(
         "Table_1.TradingDate", "Table_1.ID", "Table_1.Last", "Table_2.Last", "Times.Count"
     ).withColumn(
-        "Variation", col("Table_1.Last") - col("Table_2.Last")
+        "Variation", col("Table_2.Last") - col("Table_1.Last")
     ).select(
         "TradingDate", "ID", "Variation", "Count"
     ).withColumn(
@@ -47,7 +47,6 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).groupBy(
         "TradingDate", "Country"
     ).agg(
-        #avg("Variation"), stddev("Variation"), sum("Count")
         percentile_approx("Variation", 0.25), percentile_approx("Variation", 0.5), percentile_approx("Variation", 0.75), sum("Count")
     ).withColumnsRenamed(
         {
@@ -63,8 +62,5 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     variationDataFrame.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
-
-    ## TODO Rivedere Query
-
 
     return (variationDataFrame, end - start)
