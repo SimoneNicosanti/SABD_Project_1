@@ -53,6 +53,7 @@ services:
     hostname: spark-master
     ports:
       - '8080:8080' # http://localhost:8080 web ui spark
+      - '7077:7077'
     tty: true
 
   spark-worker:

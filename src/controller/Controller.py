@@ -11,7 +11,7 @@ from pyspark.sql import *
 from pyspark import *
 
 
-def controller(queryNumber : int = 0, framework : int = 0) :
+def controller(queryNumber : int = 0, framework : int = 0, writeOutput : bool = True, writeEvaluation : bool = False) :
     
     dataFrame : DataFrame = HDFSDao.loadFromHdfs("Dataset.csv")
     
@@ -29,100 +29,109 @@ def controller(queryNumber : int = 0, framework : int = 0) :
     if (queryNumber == 0) :
         for i in range(1, 4) :
             if (framework == 1) :
-                executionTime = sparkController(rdd, i)
-                EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
+                executionTime = sparkController(rdd, i, writeOutput)
+                if (writeEvaluation) :
+                    EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
             elif (framework == 2) :
-                executionTimeSql = sparkSqlController(dataFrame, i)
-                EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
+                executionTimeSql = sparkSqlController(dataFrame, i, writeOutput)
+                if (writeEvaluation) :
+                    EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
             else :
-                executionTime = sparkController(rdd, i)
-                EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
-                executionTimeSql = sparkSqlController(dataFrame, i)
-                EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
+                executionTime = sparkController(rdd, i, writeOutput)
+                executionTimeSql = sparkSqlController(dataFrame, i, writeOutput)
+                if (writeEvaluation) :
+                    EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
+                    EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i), writeOutput)
 
             
     else :
         if (framework == 1) :
-            sparkController(rdd, queryNumber)
+            sparkController(rdd, queryNumber, writeOutput)
         elif (framework == 2) :
-            sparkSqlController(dataFrame, queryNumber)
+            sparkSqlController(dataFrame, queryNumber, writeOutput)
         else :
-            sparkController(rdd, queryNumber)
-            sparkSqlController(dataFrame, queryNumber)
+            sparkController(rdd, queryNumber, writeOutput)
+            sparkSqlController(dataFrame, queryNumber, writeOutput)
     
 
-def sparkController(rdd : RDD, queryNumber : int) : 
+def sparkController(rdd : RDD, queryNumber : int, writeOutput : bool = True) : 
 
     if (queryNumber == 1) :
-        (resultList_1, executionTime_1) = Query_1.query(rdd)
-        SparkResultWriter.writeRdd(
-            resultList = resultList_1, 
-            header = ["Date", "Hour", "ID", "Min", "Mean", "Max", "Count"], 
-            fileName = "Query_1", 
-            parentDirectory = "/Results/spark",
-            sortList = ["Date", "Hour", "ID"]
-        )
+        (resultRDD, executionTime) = Query_1.query(rdd)
+        
+        header = ["Date", "Hour", "ID", "Min", "Mean", "Max", "Count"]
+        fileName = "Query_1"
+        parentDirectory = "/Results/spark"
+        sortList = ["Date", "Hour", "ID"]
+        ascendingList = None
 
-        return executionTime_1
 
     elif (queryNumber == 2) :
-        (resultList_2, executionTime_2) = Query_2.query(rdd)
-        SparkResultWriter.writeRdd(
-            resultList_2,
-            ["Date", "ID", "Mean", "StdDev", "Count"],
-            "Query_2",
-            "/Results/spark",
-            ["Date", "Mean"],
-            [True, False]
-        )
+        (resultRDD, executionTime) = Query_2.query(rdd)
 
-        return executionTime_2
+        header = ["Date", "ID", "Mean", "StdDev", "Count"]
+        fileName = "Query_2"
+        parentDirectory = "/Results/spark"
+        sortList = ["Date", "Mean"]
+        ascendingList = [True, False]
 
     elif (queryNumber == 3) :
-        (resultList_3, executionTime_3) = Query_3.query(rdd)
+        (resultRDD, executionTime) = Query_3.query(rdd)
+        header = ["Date", "Country", "25_Perc", "50_Perc", "75_Perc", "Count"]
+        fileName = "Query_3"
+        parentDirectory = "/Results/spark"
+        sortList = ["Date", "Country"]
+        ascendingList = None
+
+    if (writeOutput) :
         SparkResultWriter.writeRdd(
-            resultList_3,
-            ["Date", "Country", "25_Perc", "50_Perc", "75_Perc", "Count"],
-            "Query_3",
-            "/Results/spark",
-            ["Date", "Country"]
+            resultRDD,
+            header,
+            fileName,
+            parentDirectory,
+            sortList,
+            ascendingList
         )
-        return executionTime_3
 
-    return 0
+    return executionTime
 
 
-def sparkSqlController(dataFrame : DataFrame, queryNumber : int) :
+def sparkSqlController(dataFrame : DataFrame, queryNumber : int, writeOutput : bool) -> float :
+
 
     if (queryNumber == 1) :
-        (result_1, executionTime_1) = SqlQuery_1.query(dataFrame)
-        SparkSqlResultWriter.writeDataFrame(
-            result_1,
-            "Query_1",
-            "/Results/spark_sql",
-            ["TradingDate", "TradingTimeHour", "ID"]
-        )
-        return executionTime_1
+        (resultDataFrame, executionTime) = SqlQuery_1.query(dataFrame)
+        fileName = "Query_1"
+        parentDirectory = "/Results/spark_sql"
+        sortList = ["TradingDate", "TradingTimeHour", "ID"]
+        ascendingList = None
+        
 
     elif (queryNumber == 2) :
-        (result_2, executionTime_2) = SqlQuery_2.query(dataFrame)
-        SparkSqlResultWriter.writeDataFrame(
-            result_2, 
-            "Query_2", 
-            "/Results/spark_sql", 
-            ["TradingDate", "Avg"],
-            [True, False]
-        )
-        return executionTime_2
+        (resultDataFrame, executionTime) = SqlQuery_2.query(dataFrame)
+
+        fileName = "Query_2"
+        parentDirectory = "/Results/spark_sql"
+        sortList = ["TradingDate", "Avg"]
+        ascendingList = [True, False]
+        
 
     elif (queryNumber == 3) :
-        (result_3, executionTime_3) = SqlQuery_3.query(dataFrame)
-        SparkSqlResultWriter.writeDataFrame(
-            result_3,
-            "Query_3",
-            "/Results/spark_sql",
-            ["TradingDate", "Country"]
-        )
-        return executionTime_3
+        (resultDataFrame, executionTime) = SqlQuery_3.query(dataFrame)
 
-    return 0
+        fileName = "Query_2"
+        parentDirectory = "/Results/spark_sql"
+        sortList = ["TradingDate", "Country"]
+        ascendingList = None
+
+    if (writeOutput) :
+    
+        SparkSqlResultWriter.writeDataFrame(
+            resultDataFrame,
+            fileName,
+            parentDirectory,
+            sortList,
+            ascendingList
+        )
+
+    return executionTime

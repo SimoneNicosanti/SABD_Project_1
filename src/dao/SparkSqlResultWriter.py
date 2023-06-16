@@ -1,6 +1,5 @@
 from dao import FileSystemDao
 from dao import HDFSDao
-from dao import RedisDao
 
 from pyspark.sql import *
 from pyspark import *

@@ -3,8 +3,8 @@ FROM python:3.9
 RUN apt-get update
 
 # Java Config
-RUN apt-get install openjdk-11-jdk -y
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+RUN apt-get install openjdk-17-jdk -y
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 # Python Config
 RUN apt-get update

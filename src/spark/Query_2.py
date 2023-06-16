@@ -61,13 +61,13 @@ def query(rdd : RDD) -> tuple([list, float]) :
         lambda x : (x[0], (x[1].mean(), x[1].stdev(), x[1].count() + 1))
     ).map( ## (TradingDate, (Mean, StdDev, Count, ID))
         lambda x : ( x[0][0], (x[1][0], x[1][1], x[1][2], x[0][1]) ) 
-    ).groupByKey(
+    ).groupByKey( ## (TradingDate, iterableOf((Mean, StdDev, Count, ID)))
 
-    ).mapValues(
+    ).mapValues( ## (TradingDate, sortedListOf((Mean, StdDev, Count, ID)))
         lambda x : sorted(list(x), reverse = True)
-    ).mapValues(
+    ).mapValues( ## (TradingDate, listOf((Mean, StdDev, Count, ID)))
         lambda x : x[0 : 5] + x[-5 : ]
-    ).flatMap(
+    ).flatMap( ## ((TradingDate, ID), (Mean, StdDev, Count))
         lambda x : [ ((x[0], elem[3]) , (elem[0], elem[1], elem[2])) for elem in x[1] ]
     )
 
@@ -94,8 +94,12 @@ def query(rdd : RDD) -> tuple([list, float]) :
 
     print("Collecting result of Second Query")
     start = time.time()
-    resultList = resultRdd.collect()
+    resultRdd.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
 
-    return (resultList, end - start)
+    resultRdd = resultRdd.map(
+        lambda x : (x[0][0], x[0][1], x[1][0], x[1][1], x[1][2])
+    )
+
+    return (resultRdd, end - start)

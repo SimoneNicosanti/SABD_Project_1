@@ -1,15 +1,15 @@
 from redis import *
 from engineering import RedisSingleton
+from pyspark.sql import *
 import json
 
 
-def putResult(resultList : list, query : str) :
+def putResult(resultDataFrame : DataFrame, query : str) :
     redisConnection : Redis = RedisSingleton.getRedisConnection()
 
-    redisTimeSeries = redisConnection.ts()
+    redisJson = redisConnection.json()
 
-    for result in resultList :
-        key = result[0][0]
-        timestamp = str(result[0][1]) + "#" + result[0][2]
-        value = result[1][1]
-        redisTimeSeries.add(key, timestamp, value)
+    jsonResult = resultDataFrame.toJSON().collect()
+    jsonArray = json.dumps(jsonResult)
+
+    redisConnection.set(query, jsonArray)

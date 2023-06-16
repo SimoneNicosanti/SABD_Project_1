@@ -14,6 +14,8 @@ def query(dataframe : DataFrame) -> tuple([DataFrame, float]) :
         "TradingDate", "TradingTimeHour", "ID"
     ).agg(
         min("Last"), avg("Last"), max("Last"), count(expr("*"))
+    ).withColumnsRenamed(
+        {"min(Last)" : "Min", "avg(Last)" : "Avg", "max(Last)" : "Max", "count(1)" : "Count"}
     )
     
     print("Collecting result of First Query with SQL")

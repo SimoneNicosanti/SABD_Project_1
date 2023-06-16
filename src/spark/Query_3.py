@@ -27,7 +27,7 @@ def query(rdd : RDD) -> tuple([list, float]) :
         return result
 
 
-    result = rdd.map( ## ((Date, ID), (Time, Last, Time, Last))
+    resultRdd = rdd.map( ## ((Date, ID), (Time, Last, Time, Last))
         lambda x : ( (x[0], x[2]), (x[1], x[4], x[1], x[4]) )
     ).reduceByKey( ## ((Date, ID) , (minTime, minLast, maxTime, maxLast))
         lambda accum, x : (
@@ -62,11 +62,15 @@ def query(rdd : RDD) -> tuple([list, float]) :
 
     print("Collecting result of Third Query")
     start = time.time()
-    resultList = result.collect()
+    resultRdd.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
 
-    return (resultList, end - start)
+    resultRdd = resultRdd.map(
+        lambda x : (x[0][0], x[0][1], x[1][0], x[1][1], x[1][2], x[1][3])
+    )
+
+    return (resultRdd, end - start)
 
 
 

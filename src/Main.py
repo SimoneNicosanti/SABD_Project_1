@@ -7,35 +7,34 @@ import redis
 from engineering import SparkSingleton
 
 OUTPUT_DIR = "/Results"
-RUN_NUMBER = 10
+RUN_NUMBER = 5
 
 ## Arguments
-## 1. Query Number
+## 1. Query Number (1,2,3 ; else all)
 ## 2. Framework: 1 == Spark, 2 == SparkSql, else == both
+## 3. Write output: 0 = True, else = False
+
 
 def main() :
 
     setUpEnvironment()
-    
+
     if (len(sys.argv) == 1) :
-        Controller.controller()
-        # for i in range(0, RUN_NUMBER) :
-        #     Controller.controller()
+        for i in range(0, RUN_NUMBER) :
+            print("Run Number >>> ", i)
+            Controller.controller(0, 0, False, True)
+            SparkSingleton.resetConnection()
 
-    elif (len(sys.argv) == 2) :
-        queryNumber = int(sys.argv[1])
-        Controller.controller(queryNumber)
-
-    elif (len(sys.argv) == 3) :
-        queryNumber = int(sys.argv[1])
-        framework = int(sys.argv[2])
-        Controller.controller(queryNumber, framework)
-    else :
-        print("Not Valid Input")
+    if (len(sys.argv) != 4) :
+        print("ERROR: WRONG PARAMETERS NUMBER")
         return
+    
+    queryNumber = int(sys.argv[1])
+    framework = int(sys.argv[2])
+    writeOutput = int(sys.argv[3]) == 0
 
-    SparkSingleton.resetConnection()
-
+    Controller.controller(queryNumber, framework, writeOutput)
+    
     input("Press Enter to Exit >>>")
 
 

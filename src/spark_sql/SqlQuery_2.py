@@ -120,6 +120,8 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "avg(Variation)" , "Avg"
     ).withColumnRenamed(
         "stddev_pop(Variation)" , "StdDev"
+    ).withColumnRenamed(
+        "(count(1) + 1)" , "Count"
     )
 
     variationsDataFrame.persist()
