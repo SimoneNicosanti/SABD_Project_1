@@ -5,7 +5,7 @@ import os
 
 
 def loadFromHdfs(fileName : str) -> DataFrame :
-    baseHdfsUrl : str = loadHdfsUrl()
+    baseHdfsUrl : str = getHdfsUrl()
     fileUrl = baseHdfsUrl + "/" + fileName
 
     sparkSession = SparkSingleton.getSparkSession()
@@ -16,12 +16,9 @@ def loadFromHdfs(fileName : str) -> DataFrame :
 
 
 def writeDataFrameAsCsv(dataFrame : DataFrame, fileName : str, parentPath : str) :
-    
-    filePath = os.path.join(parentPath, fileName)
 
-    hdfsUrl = loadHdfsUrl()
+    hdfsUrl = getHdfsUrl()
 
-    dataFrame = dataFrame.alias("Query_1")
     dataFrame.write.csv(
         path = hdfsUrl + parentPath + "/" + fileName,
         mode = "overwrite",
@@ -31,7 +28,7 @@ def writeDataFrameAsCsv(dataFrame : DataFrame, fileName : str, parentPath : str)
     return 
 
 
-def loadHdfsUrl() -> str :
+def getHdfsUrl() -> str :
     configs = jprop.Properties()
 
     with open("./properties/hdfs.properties", 'rb') as config_file:

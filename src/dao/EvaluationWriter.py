@@ -4,7 +4,7 @@ from engineering import SparkSingleton
 
 EVALUATION_PATH = "/Results/evaluation/evaluations.csv"
 
-def writeEvaluation(evaluationTime : float, query : str, run : int = 1) :
+def writeEvaluation(executionTime : float, queryNum : int, dataStructure : str) :
 
     sparkContext = SparkSingleton.getSparkContext()
     workerNodeNum = sparkContext._jsc.sc().getExecutorMemoryStatus().size() - 1
@@ -12,9 +12,9 @@ def writeEvaluation(evaluationTime : float, query : str, run : int = 1) :
     if (not os.path.exists(EVALUATION_PATH)) :
         with open(EVALUATION_PATH, "+x") as outputFile :
             writer = csv.writer(outputFile)
-            writer.writerow(["Query", "WorkerNodeNum", "Time"])
+            writer.writerow(["QueryNum", "DataStrusture", "WorkerNodeNum", "Time"])
     
     
     with open(EVALUATION_PATH, "a") as outputFile :
         writer = csv.writer(outputFile)
-        writer.writerow([query, workerNodeNum, evaluationTime])
+        writer.writerow([queryNum, dataStructure, workerNodeNum, executionTime])

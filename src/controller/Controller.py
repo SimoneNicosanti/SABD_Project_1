@@ -21,40 +21,32 @@ def controller(queryNumber : int = 0, framework : int = 0, writeOutput : bool = 
     rdd = dataFrame.rdd.map(tuple)
     rdd = rdd.persist()
 
-    print(dataFrame.schema.names)
+    #print(dataFrame.schema.names)
 
     dataFrame.count()
     rdd.count()
 
     if (queryNumber == 0) :
-        for i in range(1, 4) :
-            if (framework == 1) :
-                executionTime = sparkController(rdd, i, writeOutput)
-                if (writeEvaluation) :
-                    EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
-            elif (framework == 2) :
-                executionTimeSql = sparkSqlController(dataFrame, i, writeOutput)
-                if (writeEvaluation) :
-                    EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i))
-            else :
-                executionTime = sparkController(rdd, i, writeOutput)
-                executionTimeSql = sparkSqlController(dataFrame, i, writeOutput)
-                if (writeEvaluation) :
-                    EvaluationWriter.writeEvaluation(executionTime, "Query_" + str(i))
-                    EvaluationWriter.writeEvaluation(executionTimeSql, "SqlQuery_" + str(i), writeOutput)
+        startIndex = 1
+        endIndex = 4
 
-            
     else :
-        if (framework == 1) :
-            sparkController(rdd, queryNumber, writeOutput)
-        elif (framework == 2) :
-            sparkSqlController(dataFrame, queryNumber, writeOutput)
-        else :
-            sparkController(rdd, queryNumber, writeOutput)
-            sparkSqlController(dataFrame, queryNumber, writeOutput)
-    
+        startIndex = queryNumber
+        endIndex = queryNumber + 1
 
-def sparkController(rdd : RDD, queryNumber : int, writeOutput : bool = True) : 
+    
+    for i in range(startIndex, endIndex) :
+        if (framework == 1) :
+            sparkController(rdd, i, writeOutput, writeEvaluation)
+        elif (framework == 2) :
+            sparkSqlController(dataFrame, i, writeOutput, writeEvaluation) 
+        else :
+            sparkController(rdd, i, writeOutput, writeEvaluation)
+            sparkSqlController(dataFrame, i, writeOutput, writeEvaluation)
+
+
+
+def sparkController(rdd : RDD, queryNumber : int, writeOutput : bool = True, writeEvaluation : bool = False) : 
 
     if (queryNumber == 1) :
         (resultRDD, executionTime) = Query_1.query(rdd)
@@ -93,15 +85,22 @@ def sparkController(rdd : RDD, queryNumber : int, writeOutput : bool = True) :
             ascendingList
         )
 
-    return executionTime
+    if (writeEvaluation) :
+        EvaluationWriter.writeEvaluation(
+            executionTime = executionTime,
+            queryNum = queryNumber,
+            dataStructure = "RDD"
+        )
+
+    return
 
 
-def sparkSqlController(dataFrame : DataFrame, queryNumber : int, writeOutput : bool) -> float :
+def sparkSqlController(dataFrame : DataFrame, queryNumber : int, writeOutput : bool, writeEvaluation : bool = False) -> float :
 
 
     if (queryNumber == 1) :
         (resultDataFrame, executionTime) = SqlQuery_1.query(dataFrame)
-        fileName = "Query_1"
+        fileName = "SqlQuery_1"
         parentDirectory = "/Results/spark_sql"
         sortList = ["TradingDate", "TradingTimeHour", "ID"]
         ascendingList = None
@@ -110,7 +109,7 @@ def sparkSqlController(dataFrame : DataFrame, queryNumber : int, writeOutput : b
     elif (queryNumber == 2) :
         (resultDataFrame, executionTime) = SqlQuery_2.query(dataFrame)
 
-        fileName = "Query_2"
+        fileName = "SqlQuery_2"
         parentDirectory = "/Results/spark_sql"
         sortList = ["TradingDate", "Avg"]
         ascendingList = [True, False]
@@ -119,19 +118,25 @@ def sparkSqlController(dataFrame : DataFrame, queryNumber : int, writeOutput : b
     elif (queryNumber == 3) :
         (resultDataFrame, executionTime) = SqlQuery_3.query(dataFrame)
 
-        fileName = "Query_2"
+        fileName = "SqlQuery_3"
         parentDirectory = "/Results/spark_sql"
         sortList = ["TradingDate", "Country"]
         ascendingList = None
 
     if (writeOutput) :
-    
         SparkSqlResultWriter.writeDataFrame(
             resultDataFrame,
             fileName,
             parentDirectory,
             sortList,
             ascendingList
+        )
+
+    if (writeEvaluation) :
+        EvaluationWriter.writeEvaluation(
+            executionTime = executionTime,
+            queryNum = queryNumber,
+            dataStructure = "DataFrame"
         )
 
     return executionTime

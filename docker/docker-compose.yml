@@ -17,7 +17,12 @@ services:
     tty: true
     volumes:
     - ../dataset:/dataset
-  
+    - ./HDFS:/HDFS
+    depends_on: 
+      - slave1 ## Has to wait for slave to start hdfs
+    # command : sh -c /HDFS/init_hdfs.sh
+    
+      
   slave1 :
     image: matnar/hadoop
     ports:
@@ -67,23 +72,21 @@ services:
     tty: true
     depends_on:
       - spark-master
-    deploy:
-      replicas: 1
 
-  ## Redis
-  redis :
-    image: redis
-    networks:
-      - my_network
-    ports:
-      - "6379:6379"
-    tty : true
+  # ## Redis
+  # redis :
+  #   image: redis
+  #   networks:
+  #     - my_network
+  #   ports:
+  #     - "6379:6379"
+  #   tty : true
 
-  ## Grafana
-  grafana :
-    image: grafana/grafana
-    networks:
-      - my_network
-    ports:
-      - "3000:3000"
-    tty : true
+  # ## Grafana
+  # grafana :
+  #   image: grafana/grafana
+  #   networks:
+  #     - my_network
+  #   ports:
+  #     - "3000:3000"
+  #   tty : true
