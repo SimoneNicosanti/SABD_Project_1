@@ -12,8 +12,8 @@ def query(rdd : RDD) -> tuple([list, float]) :
         result = 0
 
         if (digits == 0) :
-            firstIndex = int(product)
-            secondIndex = int(product) + 1
+            firstIndex = int(product) - 1
+            secondIndex = int(product) 
 
             firstValue = valueList[firstIndex]
             secondValue = valueList[secondIndex]

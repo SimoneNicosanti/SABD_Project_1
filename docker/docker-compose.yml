@@ -73,20 +73,20 @@ services:
     depends_on:
       - spark-master
 
-  # ## Redis
-  # redis :
-  #   image: redis
-  #   networks:
-  #     - my_network
-  #   ports:
-  #     - "6379:6379"
-  #   tty : true
+  ## Redis
+  redis :
+    image: redis
+    networks:
+      - my_network
+    ports:
+      - "6379:6379"
+    tty : true
 
-  # ## Grafana
-  # grafana :
-  #   image: grafana/grafana
-  #   networks:
-  #     - my_network
-  #   ports:
-  #     - "3000:3000"
-  #   tty : true
+  ## Grafana
+  grafana :
+    image: grafana/grafana
+    networks:
+      - my_network
+    ports:
+      - "3000:3000"
+    tty : true
