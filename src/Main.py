@@ -24,16 +24,18 @@ def main() :
             Controller.controller(0, 0, False, True)
             SparkSingleton.resetConnection()
 
-    elif (len(sys.argv) != 4) :
-        print("ERROR: WRONG PARAMETERS NUMBER")
-        return
-    
-    ## For every other configuration
-    queryNumber = int(sys.argv[1])
-    framework = int(sys.argv[2])
-    writeOutput = int(sys.argv[3]) == 0
+    elif (len(sys.argv) == 4) :
+        
+        queryNumber = int(sys.argv[1])
+        framework = int(sys.argv[2])
+        writeOutput = int(sys.argv[3]) == 0
 
-    Controller.controller(queryNumber, framework, writeOutput)
+        Controller.controller(queryNumber, framework, writeOutput)
+    
+    else :
+        ## For every other configuration
+        print("ERROR: WRONG PARAMETERS NUMBER")
+        
     
     input("Press Enter to Exit >>>")
 

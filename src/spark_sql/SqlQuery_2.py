@@ -16,14 +16,9 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).withColumnsRenamed(
         {"min(TradingTime)" : "MinTime", "max(TradingTime)" : "MaxTime"}
     )
-    
-    # .select(
-    #     "TradingDate", "TradingTimeHour", "ID", "MinTime", "MaxTime"
-    # )
 
     #timeDataFrame.show() 
     
-
     pricesDataFrame = dataFrame.alias("Table_1").withColumnRenamed("Last", "MinLast").join(
         timeDataFrame.alias("Times"),
         on = [
@@ -155,26 +150,6 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
 
     resultDataFrame = bestRows.union(worstRows)
-    #resultDataFrame.show(n = 100)
-
-
-    
-
-    #variationsDataFrame.show(n = 100)
-
-   
-    
-    # .withColumn(
-    #     "Variation", col("Table_1.Last") - col("Table_2.Last")
-    # ).select(
-    #     "TradingDate", "TradingTimeHour", "ID", "Variation", "Count"
-    # ).groupBy(
-    #     "TradingDate", "ID"
-    # ).agg(
-    #     avg("Variation"), stddev("Variation"), sum("Count")
-    # ).withColumnsRenamed(
-    #     {"avg(Variation)" : "Avg" , "stddev_samp(Variation)" : "StdDev"}
-    # )
 
     print("Collecting result of Second Query with SQL")
     start = time.time()

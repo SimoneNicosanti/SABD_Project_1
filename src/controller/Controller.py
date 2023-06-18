@@ -4,7 +4,7 @@ from dao import SparkResultWriter
 from dao import SparkSqlResultWriter
 from dao import EvaluationWriter
 
-from spark import Query_1, Query_2, Query_3
+from spark import Query_1, Query_2, Query_3, Query_2_variant
 from spark_sql import SqlQuery_1, SqlQuery_2, SqlQuery_3
 
 from pyspark.sql import *
@@ -92,6 +92,15 @@ def sparkController(rdd : RDD, queryNumber : int, writeOutput : bool = True, wri
             dataStructure = "RDD"
         )
 
+    if (writeEvaluation and queryNumber == 2) :
+        (resultRDD, variantExecutionTime) = Query_2_variant.query(rdd)
+        EvaluationWriter.writeEvaluation(
+            executionTime = variantExecutionTime,
+            queryNum = queryNumber,
+            dataStructure = "RDD",
+            queryVariant = 2
+        )
+        
     return
 
 

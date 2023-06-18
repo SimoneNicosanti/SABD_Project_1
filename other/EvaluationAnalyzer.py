@@ -9,26 +9,42 @@ def main() :
     for query in dataset["QueryNum"].drop_duplicates():
         
         axes = plt.subplot()
+        
+        
         for dataStructure in dataset["DataStructure"].drop_duplicates() :
             workerList = dataset["WorkerNodeNum"].drop_duplicates().sort_values()
-            avgList = []
-            stdDevList = []
+            
+            variantList = dataset[
+                (dataset["QueryNum"] == query) &
+                (dataset["DataStructure"] == dataStructure)
+            ]["QueryVariant"].drop_duplicates()
 
-            for workerNum in workerList :
-                timesSerie = dataset[
-                    (dataset["QueryNum"] == query) & 
-                    (dataset["WorkerNodeNum"] == workerNum) & 
-                    (dataset["DataStructure"] == dataStructure)
-                ]["Time"]
-                avgList.append(timesSerie.mean())
-                stdDevList.append(timesSerie.std())
+            for variant in variantList :
+                avgList = []
+                stdDevList = []
 
-            axes.plot(workerList, avgList, marker = "o", label = dataStructure)
+                for workerNum in workerList :
+                    timesSerie = dataset[
+                        (dataset["QueryNum"] == query) & 
+                        (dataset["WorkerNodeNum"] == workerNum) & 
+                        (dataset["DataStructure"] == dataStructure) &
+                        (dataset["QueryVariant"] == variant)
+                    ]["Time"]
+                    avgList.append(timesSerie.mean())
+                    stdDevList.append(timesSerie.std())
+
+                if len(variantList) == 1 :
+                    plotLabel = dataStructure
+                else :
+                    plotLabel = dataStructure + " / Var " + str(variant)
+
+                axes.plot(workerList, avgList, marker = "o", label = plotLabel)
+            
             axes.set_xticks(workerList)
         
         axes.set_title("Query_" + str(query))
         axes.set_xlabel("Number of Spark Worker")
-        axes.set_ylabel("Execution Time")
+        axes.set_ylabel("Execution Time [Sec]")
         axes.grid()
         axes.legend()
 

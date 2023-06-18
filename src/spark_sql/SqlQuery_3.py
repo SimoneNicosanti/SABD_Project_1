@@ -14,14 +14,14 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         {"min(TradingTime)" : "MinTime", "max(TradingTime)" : "MaxTime"}
     ).select(
         "TradingDate", "ID", "MinTime", "MaxTime"
-    ).filter(
+    ).filter( ## Remove those tuples which have only one trade
         col("MinTime") != col("MaxTime")
     ).withColumn(
         "Count", 
         lit(2)
     )
 
-    variationDataFrame = dataFrame.alias("Table_1").join(
+    resultDataFrame = dataFrame.alias("Table_1").join(
         timeDataFrame.alias("Times"),
         on = [
             col("Table_1.TradingDate") == col("Times.TradingDate"),
@@ -36,43 +36,29 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
             col("Table_2.ID") == col("Times.ID")
         ]
     ).select(
-        "Table_1.TradingDate", 
-        "Table_1.ID", 
-        "Table_1.Last", 
-        "Table_2.Last", 
-        "Times.Count"
+        "Table_1.TradingDate", "Table_1.ID", "Table_1.Last", "Table_2.Last", "Times.Count"
     ).withColumn(
-        "Variation", 
-        col("Table_2.Last") - col("Table_1.Last")
+        "Variation", col("Table_2.Last") - col("Table_1.Last")
     ).select(
-        "TradingDate", 
-        "ID", 
-        "Variation", 
-        "Count"
+        "TradingDate", "ID", "Variation", "Count"
     ).withColumn(
-        "Country",
-        substring_index("ID", ".", -1)
+        "Country", substring_index("ID", ".", -1)
     ).groupBy(
-        "TradingDate", 
-        "Country"
+        "TradingDate", "Country"
     ).agg(
-        percentile_approx("Variation", 0.25, 1000000), 
-        percentile_approx("Variation", 0.5, 1000000), 
-        percentile_approx("Variation", 0.75, 1000000),
-        sum("Count")
+        percentile_approx("Variation", 0.25, 1000000), percentile_approx("Variation", 0.5, 1000000), 
+        percentile_approx("Variation", 0.75, 1000000), sum("Count")
     ).withColumnsRenamed(
         {
-        "percentile_approx(Variation, 0.25, 1000000)" : "25_perc", 
-        "percentile_approx(Variation, 0.5, 1000000)" : "50_perc",
-        "percentile_approx(Variation, 0.75, 1000000)" : "75_perc",
-        "sum(Count)" : "Count"
+        "percentile_approx(Variation, 0.25, 1000000)" : "25_perc", "percentile_approx(Variation, 0.5, 1000000)" : "50_perc",
+        "percentile_approx(Variation, 0.75, 1000000)" : "75_perc", "sum(Count)" : "Count"
         }
     )
 
     print("Collecting Result of Third Query with SQL")
     start = time.time()
-    variationDataFrame.collect()
+    resultDataFrame.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
 
-    return (variationDataFrame, end - start)
+    return (resultDataFrame, end - start)

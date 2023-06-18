@@ -6,28 +6,6 @@ import time
 def query(rdd : RDD) -> tuple([list, float]) :
     ## @param rdd : RDD of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
 
-    # partialRdd = rdd.map( # [(TradingDate, ID, TradingTimeHour), (TradingTime, Last)]
-    #     lambda x : ((x[0], x[2], x[5]), (x[1], x[4]))
-    # ).aggregateByKey( ## ((TradingDate, ID, TradingHour), (minTime, minPrice, maxTime, maxPrice))
-    #     zeroValue = ("AA:AA:AA.AAAA", 0, "00:00:00.0000", 0),
-    #     seqFunc = lambda accum, elem : (
-    #         min(accum[0], elem[0]),
-    #         accum[1] if accum[0] < elem[0] else elem[1],
-    #         max(accum[2], elem[0]),
-    #         elem[1] if accum[2] < elem[0] else accum[3],
-    #     ),
-    #     combFunc = lambda accum_1, accum_2 : (
-    #         min(accum_1[0], accum_2[0]) ,
-    #         accum_1[1] if accum_1[0] < accum_2[0] else accum_2[1] ,
-    #         max(accum_1[2], accum_2[2]) ,
-    #         accum_1[3] if accum_1[2] > accum_2[2] else accum_2[3] ,
-    #     )
-    # ).map( ## ((TradingDate, ID, Hour), (Last))
-    #     lambda x : ((x[0][0], x[0][1], int(x[0][2][0:2]) + 1) , x[1][3])
-    # ).map( ## ((TradingDate, ID) , (Hour, Last))
-    #     lambda x : ((x[0][0], x[0][1]), (x[0][2], x[1]))
-    # )
-
     partialRdd = rdd.map( # [(TradingDate, ID, TradingTimeHour), (TradingTime, Last, TradingTime, Last)]
         lambda x : ((x[0], x[2], x[5]), (x[1], x[4], x[1], x[4]))
     ).reduceByKey( ## ((TradingDate, ID, TradingHour), (minTime, minPrice, maxTime, maxPrice))
@@ -51,14 +29,14 @@ def query(rdd : RDD) -> tuple([list, float]) :
         lambda x : ((x[0][0], x[0][1], x[1][1][0]), (x[1][0][0], x[1][0][1], x[1][1][1]))
     ).reduceByKey( ## ((TradingDate, ID, Hour_2), (maxHour, maxLast, Last_2))
         lambda x, y : (max(x[0], y[0]), x[1] if x[0] > y[0] else y[1], x[2])
-    ).map( ## ((TradingDate, ID), Variation)
-        lambda x : ((x[0][0], x[0][1]), x[1][2] - x[1][1])
+    ).mapValues( ## ((TradingDate, ID), Variation)
+        lambda x : x[2] - x[1]
     ).aggregateByKey( ## ((TradingDate, ID), (Stats))
         zeroValue = StatCounter(),
         seqFunc = StatCounter.merge,
         combFunc = StatCounter.mergeStats
-    ).map( ## ((TradingDate, ID), (Mean, StdDev, Count + 1)) --> +1 is for counting first tuple of variations
-        lambda x : (x[0], (x[1].mean(), x[1].stdev(), x[1].count() + 1))
+    ).mapValues( ## ((TradingDate, ID), (Mean, StdDev, Count + 1)) --> +1 is for counting first tuple of variations
+        lambda x : (x.mean(), x.stdev(), x.count() + 1)
     ).map( ## (TradingDate, (Mean, StdDev, Count, ID))
         lambda x : ( x[0][0], (x[1][0], x[1][1], x[1][2], x[0][1]) ) 
     ).groupByKey( ## (TradingDate, iterableOf((Mean, StdDev, Count, ID)))
@@ -71,14 +49,7 @@ def query(rdd : RDD) -> tuple([list, float]) :
         lambda x : [ ((x[0], elem[3]) , (elem[0], elem[1], elem[2])) for elem in x[1] ]
     )
 
-    
 
-
-    # print("Collecting Result")
-    # for elem in resultRdd.collect() :
-    #     print(elem)
-
-    # return
 
     ## Anziché ordinare cerca il max per 5 volte e il min per 5 volte
     ## Ordinamento costa O(n^2) oppure O(n * log n)
