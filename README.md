@@ -10,11 +10,9 @@ We implemented the queries both with RDD and DataFrame using Apache Spark; the c
 * SparkSQL. *src/spark/SqlQuery_\**
 
 ## Requirements
----
 This project uses **Docker** and **Docker Compose** to instantiate HDFS, Spark and Redis
 
 ## Deployment
----
 To deply this project run from */docker* directory the command:
 ```bash
 start_all.sh <numOfSparkWorkers>
@@ -31,7 +29,6 @@ docker compose up --detach --scale spark-worker=<numOfSparkWorkers>
 After system deployment you will be attached to bash in a client container
 
 ## Execute Query
----
 You can run queries for time evaluation running:
 ```bash
 python3 Main.py
