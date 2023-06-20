@@ -4,7 +4,7 @@ import time
 
 
 def query(dataframe : DataFrame) -> tuple([DataFrame, float]) :
-    result = dataframe.select(
+    resultDataFrame = dataframe.select(
         "TradingDate", "TradingTimeHour", "ID", "Last"
     ).where(
         dataframe.SecType == "E"
@@ -17,12 +17,13 @@ def query(dataframe : DataFrame) -> tuple([DataFrame, float]) :
     ).withColumnsRenamed(
         {"min(Last)" : "Min", "avg(Last)" : "Avg", "max(Last)" : "Max", "count(1)" : "Count"}
     )
+
     
     print("Collecting result of First Query with SQL")
     start = time.time()
-    result.collect()
+    resultDataFrame.collect()
     end = time.time()
     print("Execution Time >>> ", end - start)
 
 
-    return (result, end - start)
+    return (resultDataFrame, end - start)

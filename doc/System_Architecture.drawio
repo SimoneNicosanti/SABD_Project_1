@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram name="Pagina-1" id="xzlasXtwS9tDgBcQnAEd">
-        <mxGraphModel dx="1523" dy="2038" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+        <mxGraphModel dx="1546" dy="2239" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -17,15 +17,6 @@
                         <mxPoint x="590" y="192.5000000000001" as="sourcePoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="YhRIJiWPDkl4EWL_sA5s-34" value="" style="group" parent="YhRIJiWPDkl4EWL_sA5s-21" vertex="1" connectable="0">
-                    <mxGeometry x="670" y="400" width="210" height="205" as="geometry"/>
-                </mxCell>
-                <mxCell id="YhRIJiWPDkl4EWL_sA5s-15" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Grafana_logo.svg/1200px-Grafana_logo.svg.png;aspect=fixed;clipPath=inset(0.67% 9.18% 20.67% 11.9%);" parent="YhRIJiWPDkl4EWL_sA5s-34" vertex="1">
-                    <mxGeometry y="45" width="157.28813559322035" height="160" as="geometry"/>
-                </mxCell>
-                <mxCell id="YhRIJiWPDkl4EWL_sA5s-25" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://blog.knoldus.com/wp-content/uploads/2018/04/docker.png;" parent="YhRIJiWPDkl4EWL_sA5s-34" vertex="1">
-                    <mxGeometry x="120" y="12.5" width="80" height="60" as="geometry"/>
-                </mxCell>
                 <mxCell id="YhRIJiWPDkl4EWL_sA5s-35" value="" style="group" parent="YhRIJiWPDkl4EWL_sA5s-21" vertex="1" connectable="0">
                     <mxGeometry x="30" y="290" width="190" height="165" as="geometry"/>
                 </mxCell>
@@ -39,7 +30,7 @@
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="2" value="" style="group" parent="YhRIJiWPDkl4EWL_sA5s-21" vertex="1" connectable="0">
-                    <mxGeometry x="262" y="370" width="250" height="260" as="geometry"/>
+                    <mxGeometry x="470" y="370" width="250" height="260" as="geometry"/>
                 </mxCell>
                 <mxCell id="YhRIJiWPDkl4EWL_sA5s-10" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://download.logo.wine/logo/Redis/Redis-Logo.wine.png;clipPath=inset(25% 57.67% 25% 9%);aspect=fixed;" parent="2" vertex="1">
                     <mxGeometry y="50" width="210" height="210" as="geometry"/>
@@ -111,9 +102,6 @@
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeColor=default;" parent="YhRIJiWPDkl4EWL_sA5s-21" source="YhRIJiWPDkl4EWL_sA5s-6" target="26" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="30" style="rounded=0;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;strokeColor=default;edgeStyle=orthogonalEdgeStyle;" parent="YhRIJiWPDkl4EWL_sA5s-21" source="YhRIJiWPDkl4EWL_sA5s-15" target="YhRIJiWPDkl4EWL_sA5s-10" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="g-91ElmDDOz6dSzppS35-30" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="YhRIJiWPDkl4EWL_sA5s-21" source="3" target="14" edge="1">

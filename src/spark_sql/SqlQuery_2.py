@@ -7,8 +7,9 @@ from pyspark.sql.window import Window
 
 def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
-    # ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
+    # DataFrame of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
 
+    ## Looking for min time and max time for any hour
     timeDataFrame = dataFrame.groupBy(
         "TradingDate", "TradingTimeHour", "ID"
     ).agg(
@@ -16,9 +17,8 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).withColumnsRenamed(
         {"min(TradingTime)" : "MinTime", "max(TradingTime)" : "MaxTime"}
     )
-
-    #timeDataFrame.show() 
     
+    ## Looking for first price and last price for every hour
     pricesDataFrame = dataFrame.alias("Table_1").withColumnRenamed("Last", "MinLast").join(
         timeDataFrame.alias("Times"),
         on = [
@@ -37,19 +37,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "Table_1.TradingDate", "Times.TradingTimeHour", "Table_1.ID", "MinTime", "MinLast", "MaxTime", "MaxLast"
     )
 
-
-    #pricesDataFrame.show()
-
-    # pricesDataFrame_1 = pricesDataFrame.where(
-    #     "MinTime" == concat("TradingTimeHour", lit(":00:00.0000"))
-    # ).select(
-    #     "TradingDate", "TradingTimeHour", "ID", "MinLast"
-    # ).withColumnRenamed(
-    #     "MinLast" , "Last"
-    # )
-
-    #pricesDataFrame_1.show()
-
+    ## Last price of an hour is the first price of the next hour beacause there is no row with TradingTime equals to hh:00:00.0000
     initialPricesDataFrame = pricesDataFrame.select(
         "TradingDate", "TradingTimeHour", "ID", "MaxLast"
     ).withColumn(
@@ -58,11 +46,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "MaxLast", "Last"
     )
 
-    #pricesDataFrame_2.show()
-    # initialPricesDataFrame = pricesDataFrame_1.union(pricesDataFrame_2)
-
-    #initialPricesDataFrame.show()
-
+    ## Looking for previous price for every hour: it is the price of the biggest previous hour
     prevHourDataFrame = initialPricesDataFrame.alias("First").join(
         initialPricesDataFrame.alias("Second"),
         on = [
@@ -81,8 +65,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "TradingTimeHour", "Hour"
     )
 
-    #prevHourDataFrame.show(n = 1000)
-
+    ## DataFrame of couples
     pricesCouplesDataFrame = initialPricesDataFrame.withColumnRenamed("Last", "PrevPrice").alias("First").join(
         prevHourDataFrame.alias("Times"),
         on = [
@@ -101,8 +84,8 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "Times.TradingDate", "Times.ID", "Times.PrevHour", "Times.Hour", "First.PrevPrice", "Second.Price"
     )
 
-    #pricesCouplesDataFrame.show()
 
+    ## Variations DataFrame
     variationsDataFrame = pricesCouplesDataFrame.withColumn(
         "Variation", col("Price") - col("PrevPrice")
     ).select(
@@ -119,8 +102,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "(count(1) + 1)" , "Count"
     )
 
-    variationsDataFrame.persist()
-
+    ## Looking for best stocks
     bestWindows = Window.partitionBy(
         "TradingDate"
     ).orderBy(
@@ -135,6 +117,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).drop("Row")
 
 
+    ## Looking for worst stocks
     worstWindows = Window.partitionBy(
         "TradingDate"
     ).orderBy(
@@ -149,6 +132,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     ).drop("Row")
 
 
+    ## Union of best and worst stocks
     resultDataFrame = bestRows.union(worstRows)
 
     print("Collecting result of Second Query with SQL")

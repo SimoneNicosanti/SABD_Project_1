@@ -21,8 +21,7 @@ def controller(queryNumber : int = 0, framework : int = 0, writeOutput : bool = 
     rdd = dataFrame.rdd.map(tuple)
     rdd = rdd.persist()
 
-    #print(dataFrame.schema.names)
-
+    ## To force persist
     dataFrame.count()
     rdd.count()
 

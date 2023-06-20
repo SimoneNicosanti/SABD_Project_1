@@ -30,13 +30,13 @@ def query(rdd : RDD) -> tuple([list, float]) :
         lambda x : ((x[0][0], x[0][1], int(x[0][2][0:2]) + 1) , x[1][3])
     ).map( ## ((TradingDate, ID) , (Hour, Last))
         lambda x : ((x[0][0], x[0][1]), (x[0][2], x[1]))
-    ).groupByKey(
+    ).groupByKey( ## ((TradingDate, ID), listOfCouples((Hour, Last)))
 
-    ).mapValues(
+    ).mapValues( ## ((TradingDate, ID), listOfVariations)
         lambda x : findVariationList(x)
-    ).flatMap(
+    ).flatMap( ## ((TradingDate, ID), variation)
         lambda x : ((x[0], varElem) for varElem in x[1])
-    ).aggregateByKey(
+    ).aggregateByKey( ## ((TradingDate, ID), Stats)
         zeroValue = StatCounter(),
         seqFunc = StatCounter.merge,
         combFunc = StatCounter.mergeStats

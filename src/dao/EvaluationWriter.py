@@ -13,6 +13,7 @@ def writeEvaluation(executionTime : float, queryNum : int, dataStructure : str, 
         with open(EVALUATION_PATH, "+x") as outputFile :
             writer = csv.writer(outputFile)
             writer.writerow(["QueryNum", "QueryVariant", "DataStructure", "WorkerNodeNum", "Time"])
+        os.chmod(EVALUATION_PATH, 0o777)
     
     
     with open(EVALUATION_PATH, "a") as outputFile :

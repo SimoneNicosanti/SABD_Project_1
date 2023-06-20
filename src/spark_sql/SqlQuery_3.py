@@ -2,6 +2,7 @@ from pyspark.sql import *
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 import time
+from engineering import SparkSingleton
 
 
 def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
@@ -14,7 +15,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         {"min(TradingTime)" : "MinTime", "max(TradingTime)" : "MaxTime"}
     ).select(
         "TradingDate", "ID", "MinTime", "MaxTime"
-    ).filter( ## Remove those tuples which have only one trade
+    ).filter( ## Remove those tuples which have only one trade in the day
         col("MinTime") != col("MaxTime")
     ).withColumn(
         "Count", 

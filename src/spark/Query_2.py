@@ -29,8 +29,8 @@ def query(rdd : RDD) -> tuple([list, float]) :
         lambda x : ((x[0][0], x[0][1], x[1][1][0]), (x[1][0][0], x[1][0][1], x[1][1][1]))
     ).reduceByKey( ## ((TradingDate, ID, Hour_2), (maxHour, maxLast, Last_2))
         lambda x, y : (max(x[0], y[0]), x[1] if x[0] > y[0] else y[1], x[2])
-    ).mapValues( ## ((TradingDate, ID), Variation)
-        lambda x : x[2] - x[1]
+    ).map( ## ((TradingDate, ID), Variation)
+        lambda x : ((x[0][0], x[0][1]), x[1][2] - x[1][1])
     ).aggregateByKey( ## ((TradingDate, ID), (Stats))
         zeroValue = StatCounter(),
         seqFunc = StatCounter.merge,
@@ -48,20 +48,11 @@ def query(rdd : RDD) -> tuple([list, float]) :
     ).flatMap( ## ((TradingDate, ID), (Mean, StdDev, Count))
         lambda x : [ ((x[0], elem[3]) , (elem[0], elem[1], elem[2])) for elem in x[1] ]
     )
-
-
-
-    ## Anziché ordinare cerca il max per 5 volte e il min per 5 volte
-    ## Ordinamento costa O(n^2) oppure O(n * log n)
-    ## Ricerca del max e del min mi costa O(10 * n) = O(n) visto che 10 << #tuple per elemento
-    ## ho 10 * n < n * log(n) ; le liste hanno lunghezza al più 500 e quindi ordinare e poi prendere le prime parti della lista è più efficient
     
     ## TODO Ricontrolla Tuple Count: fatto con il +1 !! 
     ## Se faccio il +1 sto considerando il primo prezzo che invece nelle variazioni sparisce.
     ## Sia qui che in Sql
     ## Le azioni che hanno una sola tupla totale sono filtrate nel join
-
-    # TODO Prendere quello che ha TradingHour più piccolo?? Non è necessario in teoria ma andrebbe fatto: giustificalo con analisi del Dataset
 
     print("Collecting result of Second Query")
     start = time.time()

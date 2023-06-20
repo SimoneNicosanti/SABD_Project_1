@@ -9,12 +9,14 @@ def writeDataFrameAsCsv(dataFrame : DataFrame, fileName : str, parentPath : str)
     resultList = dataFrame.rdd.collect()
 
     filePath = os.path.join(parentPath, fileName + ".csv")
-    if (os.path.exists(filePath)) :
-        mode = "+w"
-    else :
-        mode = "+x"
+    if (not os.path.exists(filePath)) :
+        ## Create file and change access mode for it
+        with open(filePath, "+x") as outputFile :
+            None
+        os.chmod(filePath, 0o777)
+        
 
-    with open(os.path.join(parentPath, fileName + ".csv"), mode) as outputFile :
+    with open(filePath, "+w") as outputFile :
         writer = csv.writer(outputFile)
         writer.writerow(header)
         writer.writerows(resultList)

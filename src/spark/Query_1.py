@@ -13,8 +13,8 @@ def query(rdd : RDD) -> tuple([RDD, float]) :
         zeroValue = StatCounter(),
         seqFunc = StatCounter.merge,
         combFunc = StatCounter.mergeStats
-    ).map( ## ((TradingDate, TradingHour, ID), (min, avg, max, count))
-        lambda x : (x[0], (x[1].min(), x[1].mean(), x[1].max(), x[1].count()))
+    ).mapValues( ## ((TradingDate, TradingHour, ID), (min, avg, max, count))
+        lambda x : (x.min(), x.mean(), x.max(), x.count())
     ) 
 
     
