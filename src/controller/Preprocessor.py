@@ -25,19 +25,19 @@ def prepareForProcessing(dataframe : DataFrame) -> DataFrame :
     modifiedDataframe = modifiedDataframe.drop("value")
 
     modifiedDataframe = modifiedDataframe.where(modifiedDataframe.SecType != "SecType")
-    
-    # Renaming Dataframe colf for easier access
-    # modifiedDataframe = modifiedDataframe.withColumnRenamed("Trading date", "TradingDate")
-    # modifiedDataframe = modifiedDataframe.withColumnRenamed("Trading time", "TradingTime")
-
-    # # Selecting only interesting cols
-    # modifiedDataframe = modifiedDataframe.select("ID", "SecType", "Last", "TradingDate", "TradingTime")
 
     # Null Date removal
     modifiedDataframe = modifiedDataframe.where(
         modifiedDataframe.TradingDate.isNotNull()
     ).where(
         modifiedDataframe.TradingDate != ""
+    )
+
+    # Null Times removal
+    modifiedDataframe = modifiedDataframe.where(
+        modifiedDataframe.TradingTime.isNotNull()
+    ).where(
+        modifiedDataframe.TradingTime != ""
     )
 
     # Formatting Time Field

@@ -37,7 +37,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
         "Table_1.TradingDate", "Times.TradingTimeHour", "Table_1.ID", "MinTime", "MinLast", "MaxTime", "MaxLast"
     )
 
-    ## Last price of an hour is the first price of the next hour beacause there is no row with TradingTime equals to hh:00:00.0000
+    ## Last price of an hour is the previous price of the prev hour beacause there is no row with TradingTime equals to hh:00:00.0000
     initialPricesDataFrame = pricesDataFrame.select(
         "TradingDate", "TradingTimeHour", "ID", "MaxLast"
     ).withColumn(

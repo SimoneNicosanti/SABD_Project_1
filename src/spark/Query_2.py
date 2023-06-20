@@ -48,11 +48,6 @@ def query(rdd : RDD) -> tuple([list, float]) :
     ).flatMap( ## ((TradingDate, ID), (Mean, StdDev, Count))
         lambda x : [ ((x[0], elem[3]) , (elem[0], elem[1], elem[2])) for elem in x[1] ]
     )
-    
-    ## TODO Ricontrolla Tuple Count: fatto con il +1 !! 
-    ## Se faccio il +1 sto considerando il primo prezzo che invece nelle variazioni sparisce.
-    ## Sia qui che in Sql
-    ## Le azioni che hanno una sola tupla totale sono filtrate nel join
 
     print("Collecting result of Second Query")
     start = time.time()
