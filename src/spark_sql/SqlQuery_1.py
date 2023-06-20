@@ -5,19 +5,8 @@ from engineering import SparkSingleton
 
 
 def query(dataframe : DataFrame) -> tuple([DataFrame, float]) :
-    # resultDataFrame = dataframe.select(
-    #     "TradingDate", "TradingTimeHour", "ID", "Last"
-    # ).where(
-    #     dataframe.SecType == "E"
-    # ).where(
-    #     dataframe.ID.endswith(".FR")
-    # ).groupBy(
-    #     "TradingDate", "TradingTimeHour", "ID"
-    # ).agg(
-    #     min("Last"), avg("Last"), max("Last"), count(expr("*"))
-    # ).withColumnsRenamed(
-    #     {"min(Last)" : "Min", "avg(Last)" : "Avg", "max(Last)" : "Max", "count(1)" : "Count"}
-    # )
+
+    # DataFrame of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
 
     sqlQuery : str = """
                         SELECT TradingDate, TradingTimeHour, ID, min(Last) as Min, avg(Last) as Avg, max(Last) as Max, count(*) as Count

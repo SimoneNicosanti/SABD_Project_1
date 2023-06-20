@@ -10,7 +10,7 @@ RUN_NUMBER = 5
 ## 1. Query Number (1,2,3 ; else all)
 ## 2. Framework: 1 == Spark, 2 == SparkSql, else == both
 ## 3. Write output: 0 = True, else = False
-## 4. NO Arguments == python3 0 0 0 with time evaluation writing
+## 4. NO Arguments == python3 0 0 1 with time evaluation writing
 
 
 def main() :

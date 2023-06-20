@@ -49,7 +49,7 @@ def main() :
         axes.legend()
 
         plt.tight_layout()
-        plt.savefig("../doc/charts/Query_" + str(query))
+        plt.savefig("../doc/charts/Query_" + str(query) + "_Chart")
         plt.clf()
             
     return
