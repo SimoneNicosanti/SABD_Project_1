@@ -25,6 +25,8 @@ def controller(queryNumber : int = 0, framework : int = 0, writeOutput : bool = 
     dataFrame.count()
     rdd.count()
 
+    dataFrame.createOrReplaceTempView("Trade")
+
     if (queryNumber == 0) :
         startIndex = 1
         endIndex = 4
@@ -119,7 +121,7 @@ def sparkSqlController(dataFrame : DataFrame, queryNumber : int, writeOutput : b
 
         fileName = "SqlQuery_2"
         parentDirectory = "/Results/spark_sql"
-        sortList = ["TradingDate", "Avg"]
+        sortList = ["TradingDate", "Mean"]
         ascendingList = [True, False]
         
 

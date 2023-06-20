@@ -29,6 +29,8 @@ docker compose up --detach --scale spark-worker=<numOfSparkWorkers>
 After system deployment you will be attached to bash in a client container
 
 ## Execute Query
+All following commands has to be run from */src* directory in client container.
+
 You can run queries for time evaluation running:
 ```bash
 python3 Main.py
