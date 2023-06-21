@@ -9,6 +9,8 @@ def main() :
     for query in dataset["QueryNum"].drop_duplicates():
         
         axes = plt.subplot()
+
+        resultDataFrame = pd.DataFrame(columns = ["DataStructure", "Variant", "WorkersNum", "Mean"])
         
         
         for dataStructure in dataset["DataStructure"].drop_duplicates() :
@@ -30,8 +32,13 @@ def main() :
                         (dataset["DataStructure"] == dataStructure) &
                         (dataset["QueryVariant"] == variant)
                     ]["Time"]
-                    avgList.append(timesSerie.mean())
-                    stdDevList.append(timesSerie.std())
+                    mean = timesSerie.mean()
+                    stdDev = timesSerie.std()
+                    avgList.append(mean)
+                    stdDevList.append(stdDev)
+
+                    resultDataFrame.loc[len(resultDataFrame.index)] = [dataStructure, variant, workerNum, mean]
+                    
 
                 if len(variantList) == 1 :
                     plotLabel = dataStructure
@@ -39,7 +46,8 @@ def main() :
                     plotLabel = dataStructure + " / Var " + str(variant)
 
                 axes.plot(workerList, avgList, marker = "o", label = plotLabel)
-            
+
+                
             axes.set_xticks(workerList)
         
         axes.set_title("Query_" + str(query))
@@ -51,6 +59,8 @@ def main() :
         plt.tight_layout()
         plt.savefig("../doc/charts/Query_" + str(query) + "_Chart")
         plt.clf()
+
+        resultDataFrame.to_csv("../Results/evaluation/Query_" + str(query) + "_Avgs.csv", header = True, index = False)
             
     return
 

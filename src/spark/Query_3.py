@@ -5,7 +5,7 @@ import statistics
 def query(rdd : RDD) -> tuple([list, float]) :
     ## @param rdd : RDD of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']    
 
-    def computePercentile(valueList : list, perc : float) -> tuple :
+    def computePercentile(valueList : list, perc : float) -> float :
         listLen = len(valueList)
         product = listLen * perc
         digits = product - int(product)

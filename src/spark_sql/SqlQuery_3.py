@@ -9,6 +9,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
 
     # DataFrame of ['TradingDate', 'TradingTime', 'ID', 'SecType', 'Last', 'TradingTimeHour']
 
+    ## Looking for first and last trade time
     timesSqlQuery = """
                     SELECT TradingDate, ID, MinTime, MaxTime
                     FROM (
@@ -21,7 +22,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     timeDataFrame = SparkSingleton.getSparkSession().sql(timesSqlQuery)
     timeDataFrame.createOrReplaceTempView("ExtremeTime")
 
-
+    ## Looking for first and last price
     couplesSqlQuery = """
                         SELECT T_1.TradingDate, T_1.ID, T_1.Last as FirstPrice, T_2.Last as LastPrice, 2 as Count
                         FROM Trade as T_1 JOIN
@@ -32,7 +33,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     couplesDataFrame = SparkSingleton.getSparkSession().sql(couplesSqlQuery)
     couplesDataFrame.createOrReplaceTempView("FirstAndLastPriceCouple")
 
-
+    ## Computing variations
     variationSqlQuery = """
                         SELECT TradingDate, SUBSTRING_INDEX(ID, ".", -1) as Country, LastPrice - FirstPrice as Variation, Count
                         FROM FirstAndLastPriceCouple
@@ -41,6 +42,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     variationDataFrame = SparkSingleton.getSparkSession().sql(variationSqlQuery)
     variationDataFrame.createOrReplaceTempView("DailyVariation")
 
+    ## Computing percentiles and count
     resultSqlQuery = """
                         SELECT TradingDate, Country, APPROX_PERCENTILE(Variation, 0.25) as 25_Perc, APPROX_PERCENTILE(Variation, 0.5) as 50_Perc, APPROX_PERCENTILE(Variation, 0.75) as 75_Perc, sum(Count) as Count
                         FROM DailyVariation

@@ -17,6 +17,9 @@ To deply this project run from */docker* directory the command:
 ```bash
 start_all.sh <numOfSparkWorkers>
 ```
+
+The dataset will be downloaded from [this url](www.ce.uniroma2.it/courses/sabd2223/project/out500_combined+header.csv) when hdfs master container is started
+
 You can stop all containers running from */docker* directory the command:
 ```bash
 stop_all.sh
@@ -58,4 +61,4 @@ With **writeOutput** :
 
 If run with **writeOutput** as **True**, query results will be written in:
 * */Results/spark/Query_\** if run with RDD
-* */Results/spark/SqlQuery_\** if run with DataFrame
+* */Results/spark_sql/SqlQuery_\** if run with DataFrame

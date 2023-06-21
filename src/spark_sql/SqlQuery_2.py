@@ -26,6 +26,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     lastTradeDataFrame = SparkSingleton.getSparkSession().sql(lastTradeSqlQuery)
     lastTradeDataFrame.createOrReplaceTempView("LastTrade")
 
+    ## Looking for first price for every hour
     firstPriceSqlQuery = """
                         SELECT TradingDate, TradingHour + 1 as TradingHour, ID, Last
                         FROM LastTrade
@@ -33,7 +34,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     firstPriceDataFrame = SparkSingleton.getSparkSession().sql(firstPriceSqlQuery)
     firstPriceDataFrame.createOrReplaceTempView("FirstPrice")
 
-
+    ##Looking for last trade before each hour
     priceCouplesSqlQuery = """
                         SELECT FP_1.TradingDate, FP_1.ID, FP_1.TradingHour as PrevHour, FP_1.Last as PrevLast, FP_2.TradingHour as Hour, FP_2.Last as Last
                         FROM FirstPrice as FP_1 JOIN FirstPrice as FP_2
@@ -52,6 +53,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     priceCouplesDataFrame = SparkSingleton.getSparkSession().sql(priceCouplesSqlQuery)
     priceCouplesDataFrame.createOrReplaceTempView("PriceCouple")
     
+    ## Looking for variations
     variationSqlQuery = """
                         SELECT TradingDate, ID, Last - PrevLast as Variation
                         FROM PriceCouple
@@ -60,6 +62,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     variationDataFrame = SparkSingleton.getSparkSession().sql(variationSqlQuery)
     variationDataFrame.createOrReplaceTempView("Variation")
 
+    ## Computing statistics
     statisticsSqlQuery = """
                         SELECT TradingDate, ID, avg(Variation) as Mean, stddev_pop(Variation) StdDev, count(*) + 1 as Count
                         FROM Variation
@@ -68,6 +71,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     statisticsDataFrame = SparkSingleton.getSparkSession().sql(statisticsSqlQuery)
     statisticsDataFrame.createOrReplaceTempView("Statistic")
 
+    ## Computing top five
     topFiveSqlQuery = """
                         SELECT TradingDate, ID, Mean, StdDev, Count
                         FROM (
@@ -79,6 +83,7 @@ def query(dataFrame : DataFrame) -> tuple([DataFrame, float]) :
     topFiveDataFrame = SparkSingleton.getSparkSession().sql(topFiveSqlQuery)
     topFiveDataFrame.createOrReplaceTempView("TopFive")
 
+    ## Computing worst five
     worstFiveSqlQuery = """
                         SELECT TradingDate, ID, Mean, StdDev, Count
                         FROM (
