@@ -13,9 +13,7 @@ from pyspark import *
 
 def controller(queryNumber : int = 0, framework : int = 0, writeOutput : bool = True, writeEvaluation : bool = False) :
     
-    dataFrame : DataFrame = HDFSDao.loadFromHdfs("Dataset.csv")
-    
-    dataFrame = Preprocessor.prepareForProcessing(dataFrame)
+    dataFrame = HDFSDao.readParquet("PreprocessedDataset")
 
     dataFrame = dataFrame.persist()
     rdd = dataFrame.rdd.map(tuple)
@@ -101,6 +99,7 @@ def sparkController(rdd : RDD, queryNumber : int, writeOutput : bool = True, wri
             dataStructure = "RDD",
             queryVariant = 2
         )
+        
         
     return
 

@@ -1,10 +1,14 @@
 from pyspark.sql import *
 from pyspark.sql.functions import *
+from engineering import SparkSingleton
+from dao import HDFSDao
 
 
-def prepareForProcessing(dataframe : DataFrame) -> DataFrame :
+def prepareForProcessing() :
 
-    modifiedDataframe = dataframe
+    dataFrame = HDFSDao.loadFromHdfs("Dataset.csv")
+
+    modifiedDataframe = dataFrame
 
     modifiedDataframe = modifiedDataframe.where(~modifiedDataframe.value.startswith("#"))
 
@@ -57,4 +61,6 @@ def prepareForProcessing(dataframe : DataFrame) -> DataFrame :
     # Adding col TradingTimeHour to simplify queries
     modifiedDataframe = modifiedDataframe.withColumn("TradingTimeHour", concat(substring("TradingTime", 1, 2), lit(":00")))
 
-    return modifiedDataframe
+    modifiedDataframe = modifiedDataframe.coalesce(1)
+
+    HDFSDao.writeDafaFrameAsParquet(modifiedDataframe, "PreprocessedDataset")

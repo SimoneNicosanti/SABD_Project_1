@@ -1,10 +1,10 @@
-from controller import Controller
+from controller import Controller, Preprocessor
 import os
 import sys
 from engineering import SparkSingleton
 
 
-RUN_NUMBER = 5
+RUN_NUMBER = 10
 
 ## Arguments
 ## 1. Query Number (1,2,3 ; else all)
@@ -15,14 +15,18 @@ RUN_NUMBER = 5
 
 def main() :
 
+    Preprocessor.prepareForProcessing()
+
     setUpEnvironment()
 
     if (len(sys.argv) == 1) :
         ## For Time Evaluation Only
-        for i in range(0, RUN_NUMBER) :
-            print("Run Number >>> ", i)
-            Controller.controller(0, 0, False, True)
-            SparkSingleton.resetConnection()
+        for runNum in range(0, RUN_NUMBER) :
+            print("Run Number >>> ", runNum)
+            for queryNum in range(1, 4) :
+                for framework in range(1 , 3) :
+                    Controller.controller(queryNum, framework, False, True)
+                    SparkSingleton.resetConnection()
 
     elif (len(sys.argv) == 4) :
         queryNumber = int(sys.argv[1])

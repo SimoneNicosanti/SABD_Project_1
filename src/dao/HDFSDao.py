@@ -28,6 +28,20 @@ def writeDataFrameAsCsv(dataFrame : DataFrame, fileName : str, parentPath : str)
     return 
 
 
+def writeDafaFrameAsParquet(dataFrame : DataFrame, name : str) :
+    hdfsUrl = getHdfsUrl()
+    dataFrame.write.parquet(
+        path = hdfsUrl + "/" + name,
+        mode = "overwrite"
+    )
+
+def readParquet(name : str) :
+    hdfsUrl = getHdfsUrl()
+    dataFrame = SparkSingleton.getSparkSession().read.parquet(hdfsUrl + "/" + name)
+
+    return dataFrame
+
+
 def getHdfsUrl() -> str :
     configs = jprop.Properties()
 
